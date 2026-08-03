@@ -24,3 +24,44 @@ class _NotificationsPageState extends State<NotificationsPage> {
     _notifs = List.from(MockData.notifications);
   }
 }
+void _markAllRead() {
+    setState(() {
+      _notifs = _notifs.map((n) => n.copyWith(isRead: true)).toList();
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('All notifications marked as read'),
+        backgroundColor: AppColors.success,
+      ),
+    );
+  }
+
+  void _dismissNotification(int index, NotificationModel item) {
+    setState(() {
+      _notifs.removeAt(index);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Notification dismissed'),
+        action: SnackBarAction(
+          label: 'Undo',
+          textColor: Colors.white,
+          onPressed: () {
+            setState(() {
+              _notifs.insert(index, item);
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  List<NotificationModel> get _filteredNotifs {
+    if (_selectedCategory == 'All') return _notifs;
+    return _notifs.where((n) {
+      if (_selectedCategory == 'Bill') return n.type == NotificationType.bill;
+      if (_selectedCategory == 'Usage') return n.type == NotificationType.usage;
+      if (_selectedCategory == 'Promo') return n.type == NotificationType.promo;
+      return true;
+    }).toList();
+  }
