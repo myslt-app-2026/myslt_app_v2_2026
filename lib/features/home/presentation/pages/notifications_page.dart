@@ -217,4 +217,18 @@ void _markAllRead() {
                     },
                   ),
           ),
+        ],
+      ),
+    );
+  }
+
+  String _formatTime(DateTime time) {
+    final diff = DateTime.now().difference(time);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    return '${time.day}/${time.month}';
+  }
+}
+        
+          
   
