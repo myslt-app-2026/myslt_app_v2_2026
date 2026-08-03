@@ -65,3 +65,63 @@ void _markAllRead() {
       return true;
     }).toList();
   }
+  @override
+  Widget build(BuildContext context) {
+    final filtered = _filteredNotifs;
+
+    return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_rounded),
+          onPressed: () => context.pop(),
+        ),
+        title: Text('Notifications', style: AppTextStyles.titleMedium),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          if (_notifs.any((n) => !n.isRead))
+            TextButton(
+              onPressed: _markAllRead,
+              child: const Text('Mark all read'),
+            ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Filter Chips
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pagePadding, vertical: AppSpacing.md),
+            child: Row(
+              children: ['All', 'Bill', 'Usage', 'Promo'].map((cat) {
+                final isSelected = _selectedCategory == cat;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: ChoiceChip(
+                    label: Text(cat),
+                    selected: isSelected,
+                    selectedColor: AppColors.primary.withAlpha(40),
+                    checkmarkColor: AppColors.primary,
+                    labelStyle: AppTextStyles.labelMedium.copyWith(
+                      color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                    onSelected: (selected) {
+                      if (selected) {
+                        setState(() => _selectedCategory = cat);
+                      }
+                    },
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          
+          // Placeholder for list
+          Expanded(child: Container()),
+        ],
+      ),
+    );
+  }
+  
