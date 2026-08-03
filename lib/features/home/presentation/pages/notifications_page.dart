@@ -118,10 +118,103 @@ void _markAllRead() {
             ),
           ),
           
-          // Placeholder for list
-          Expanded(child: Container()),
-        ],
-      ),
-    );
-  }
+          // Notification list
+          Expanded(
+            child: filtered.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.notifications_off_outlined, size: 64, color: AppColors.textTertiary),
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          'No notifications found',
+                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.pagePadding),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final item = filtered[index];
+                      return Dismissible(
+                        key: Key(item.id),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 20),
+                          decoration: BoxDecoration(
+                            color: AppColors.error,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(Icons.delete_rounded, color: Colors.white),
+                        ),
+                        onDismissed: (_) => _dismissNotification(index, item),
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                          decoration: BoxDecoration(
+                            color: item.isRead ? Colors.white : AppColors.primary.withAlpha(10),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: item.isRead ? AppColors.borderLight : AppColors.primary.withAlpha(51),
+                              width: item.isRead ? 1 : 1.5,
+                            ),
+                          ),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.all(AppSpacing.md),
+                            leading: Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: item.type.color.withAlpha(20),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(item.type.icon, color: item.type.color, size: 20),
+                            ),
+                            title: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item.title,
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      fontWeight: item.isRead ? FontWeight.normal : FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                if (!item.isRead)
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4),
+                                Text(item.body, style: AppTextStyles.bodySmall),
+                                const SizedBox(height: 6),
+                                Text(_formatTime(item.timestamp), style: AppTextStyles.caption),
+                              ],
+                            ),
+                            onTap: () {
+                              setState(() {
+                                final notifIndex = _notifs.indexWhere((n) => n.id == item.id);
+                                if (notifIndex != -1) {
+                                  _notifs[notifIndex] = _notifs[notifIndex].copyWith(isRead: true);
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                      ).animate().fadeIn(duration: 200.ms, delay: Duration(milliseconds: index * 40));
+                    },
+                  ),
+          ),
   
