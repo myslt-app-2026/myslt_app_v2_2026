@@ -79,9 +79,58 @@ class PromotionDetailPage extends StatelessWidget {
             ),
           ),
           
-          // Content placeholder
-          SliverToBoxAdapter(child: Container()),
-        ],
-      ),
-    );
-  }
+          // Content 
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.pagePadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Badge + Expiry
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (promo.badgeLabel != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: promo.badgeColorValue ?? AppColors.warning,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            promo.badgeLabel!,
+                            style: AppTextStyles.caption.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      Text(
+                        isExpired
+                            ? 'Offer Expired'
+                            : 'Valid until: ${_formatDate(promo.expiryDate)}',
+                        style: AppTextStyles.caption.copyWith(
+                          color: isExpired ? AppColors.error : AppColors.textSecondary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ).animate().fadeIn(duration: 300.ms),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Title
+                  Text(
+                    promo.title,
+                    style: AppTextStyles.headlineSmall.copyWith(fontWeight: FontWeight.bold),
+                  ).animate().fadeIn(duration: 300.ms, delay: 100.ms).slideY(begin: 0.1),
+                  const SizedBox(height: AppSpacing.xs),
+
+                  // Subtitle
+                  Text(
+                    promo.subtitle,
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                  ).animate().fadeIn(duration: 300.ms, delay: 150.ms),
+                ],
+              ),
+            ),
+          ),
