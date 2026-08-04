@@ -130,7 +130,48 @@ class PromotionDetailPage extends StatelessWidget {
                     promo.subtitle,
                     style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
                   ).animate().fadeIn(duration: 300.ms, delay: 150.ms),
+                  const SizedBox(height: AppSpacing.xl),
+
+                  // Description details
+                  Text('Offer Details & Eligibility', style: AppTextStyles.titleMedium),
+                  const SizedBox(height: AppSpacing.sm),
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                      border: Border.all(color: AppColors.dividerLight),
+                    ),
+                    child: Column(
+                      children: const [
+                        _DetailBullet(text: 'Applicable for all Home Fiber Postpaid customers.'),
+                        _DetailBullet(text: 'Offer can be claimed only once per billing cycle.'),
+                        _DetailBullet(text: 'Free data benefits do not roll over to next month.'),
+                        _DetailBullet(text: 'Standard terms & conditions of SLT-Mobitel apply.'),
+                      ],
+                    ),
+                  ).animate().fadeIn(duration: 300.ms, delay: 200.ms).slideY(begin: 0.1),
+                  const SizedBox(height: AppSpacing.xl3),
+
+                  // Action Button
+                  AppButton(
+                    label: promo.ctaLabel,
+                    onPressed: isExpired
+                        ? null
+                        : () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Activating "${promo.title}" offer...'),
+                                backgroundColor: AppColors.success,
+                              ),
+                            );
+                          },
+                  ).animate().fadeIn(duration: 300.ms, delay: 250.ms),
                 ],
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
