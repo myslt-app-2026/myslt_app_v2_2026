@@ -57,3 +57,31 @@ class SettingsPage extends ConsumerWidget {
             ],
           ).animate().fadeIn(duration: 300.ms, delay: 100.ms),
           const SizedBox(height: AppSpacing.lg),
+
+          _SettingsSection(
+            title: 'About',
+            children: [
+              _SettingsTile(
+                icon: Icons.info_outline,
+                label: 'App Version',
+                trailing: Text('2.0.0 (Demo)', style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+              ),
+              _SettingsTile(
+                icon: Icons.privacy_tip_outlined,
+                label: 'Privacy Policy',
+                trailing: const Icon(Icons.open_in_new, size: 16, color: AppColors.textTertiary),
+                onTap: () {},
+              ),
+              _SettingsTile(
+                icon: Icons.description_outlined,
+                label: 'Terms of Service',
+                trailing: const Icon(Icons.open_in_new, size: 16, color: AppColors.textTertiary),
+                onTap: () {},
+              ),
+            ],
+          ).animate().fadeIn(duration: 300.ms, delay: 300.ms),
+        ],
+      ),
+    );
+  }
+}
