@@ -29,9 +29,31 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.pagePadding),
         children: [
-          // Placeholder for sections
-        ],
-      ),
-    );
-  }
-}
+          _SettingsSection(
+            title: 'Appearance',
+            children: [
+              _SettingsTile(
+                icon: Icons.dark_mode_outlined,
+                label: 'Dark Mode',
+                trailing: Switch(
+                  value: settings.isDarkMode,
+                  onChanged: (v) => ref.read(settingsProvider.notifier).toggleDarkMode(),
+                  activeColor: AppColors.primary,
+                ),
+              ),
+              _SettingsTile(
+                icon: Icons.language_rounded,
+                label: 'Language',
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(settings.languageLabel, style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary)),
+                    const SizedBox(width: AppSpacing.xs),
+                    const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
+                  ],
+                ),
+                onTap: () => context.push(AppRoutes.language),
+              ),
+            ],
+          ).animate().fadeIn(duration: 300.ms, delay: 100.ms),
+          const SizedBox(height: AppSpacing.lg),
