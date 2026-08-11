@@ -59,6 +59,31 @@ class SettingsPage extends ConsumerWidget {
           const SizedBox(height: AppSpacing.lg),
 
           _SettingsSection(
+            title: 'Notifications',
+            children: [
+              _SettingsTile(
+                icon: Icons.notifications_outlined,
+                label: 'Push Notifications',
+                trailing: Switch(
+                  value: settings.pushNotifications,
+                  onChanged: (v) => ref.read(settingsProvider.notifier).togglePushNotifications(),
+                  activeColor: AppColors.primary,
+                ),
+              ),
+              _SettingsTile(
+                icon: Icons.email_outlined,
+                label: 'Email Alerts',
+                trailing: Switch(
+                  value: settings.emailAlerts,
+                  onChanged: (v) => ref.read(settingsProvider.notifier).toggleEmailAlerts(),
+                  activeColor: AppColors.primary,
+                ),
+              ),
+            ],
+          ).animate().fadeIn(duration: 300.ms, delay: 200.ms),
+          const SizedBox(height: AppSpacing.lg),
+
+          _SettingsSection(
             title: 'About',
             children: [
               _SettingsTile(
