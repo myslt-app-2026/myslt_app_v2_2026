@@ -25,8 +25,8 @@ class PromotionDetailPage extends StatelessWidget {
       orElse: () => MockData.promotions.first,
     );
   }
-}
-@override
+
+  @override
   Widget build(BuildContext context) {
     final promo = _promo;
     final isExpired = promo.expiryDate.isBefore(DateTime.now());

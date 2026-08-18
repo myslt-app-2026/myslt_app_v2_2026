@@ -23,8 +23,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     super.initState();
     _notifs = List.from(MockData.notifications);
   }
-}
-void _markAllRead() {
+
+  void _markAllRead() {
     setState(() {
       _notifs = _notifs.map((n) => n.copyWith(isRead: true)).toList();
     });

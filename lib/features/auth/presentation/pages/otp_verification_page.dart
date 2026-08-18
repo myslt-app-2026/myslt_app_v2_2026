@@ -73,10 +73,25 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage>
 
     if (!mounted) return;
     if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Account verified successfully! Welcome to mySLT.'),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
       context.go(AppRoutes.home);
     } else {
       _errorController.add(ErrorAnimationType.shake);
       _shakeController.forward().then((_) => _shakeController.reset());
+      final err = ref.read(authNotifierProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(err ?? 'OTP verification failed'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
