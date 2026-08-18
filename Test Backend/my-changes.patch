@@ -1,0 +1,139 @@
+From cbc0a1bc489d000517d69d13200278aed2b691c8 Mon Sep 17 00:00:00 2001
+From: geeth <geethaanjaleeci@gmail.com>
+Date: Tue, 19 Aug 2025 22:12:46 +0530
+Subject: [PATCH] initializing the get method of EnhancedCurrentDailyUsage
+ function.
+
+---
+ .../EnhancedCurrentDailyUsageController.js    | 34 ++++++++++++++++-
+ .../models/EnhancedCurrentDailyUsageModel.js  | 38 ++++++++++++++++++-
+ .../routes/EnhancedCurrentDailyUsageRoutes.js | 11 ++++++
+ src/app.js                                    |  4 ++
+ 4 files changed, 85 insertions(+), 2 deletions(-)
+ create mode 100644 src/BBVAS/EnhancedCurrentDailyUsage/routes/EnhancedCurrentDailyUsageRoutes.js
+
+diff --git a/src/BBVAS/EnhancedCurrentDailyUsage/controllers/EnhancedCurrentDailyUsageController.js b/src/BBVAS/EnhancedCurrentDailyUsage/controllers/EnhancedCurrentDailyUsageController.js
+index 57a5e6d..2dfd7fa 100644
+--- a/src/BBVAS/EnhancedCurrentDailyUsage/controllers/EnhancedCurrentDailyUsageController.js
++++ b/src/BBVAS/EnhancedCurrentDailyUsage/controllers/EnhancedCurrentDailyUsageController.js
+@@ -1 +1,33 @@
+-// EnhancedCurrentDailyUsageController
++const EnhancedCurrentDailyUsage = require('../models/EnhancedCurrentDailyUsageModel');
++
++// GET Enhanced Current Daily Usage
++exports.getEnhancedCurrentDailyUsage = async (req, res) => {
++  try {
++    const { subscriberID, billDate } = req.query;
++
++    if (!subscriberID || !billDate) {
++      return res.status(400).json({ error: "subscriberID and billDate are required" });
++    }
++
++    const usageData = await EnhancedCurrentDailyUsage.findOne({ subscriberID, billDate });
++
++    if (!usageData) {
++      return res.status(404).json({ message: "No usage data found" });
++    }
++
++    res.json({
++      id: usageData.id,
++      href: `/tmf-api/usageManagement/v4/usage/${usageData.id}`,
++      usageDate: usageData.usageDate,
++      description: usageData.description || "Daily usage record",
++      usageType: usageData.usageType || "Data",
++      status: usageData.status,
++      usageCharacteristic: usageData.usageCharacteristic,
++      relatedParty: usageData.relatedParty,
++      usageSpecification: usageData.usageSpecification
++    });
++
++  } catch (error) {
++    res.status(500).json({ error: "Server error", details: error.message });
++  }
++};
+diff --git a/src/BBVAS/EnhancedCurrentDailyUsage/models/EnhancedCurrentDailyUsageModel.js b/src/BBVAS/EnhancedCurrentDailyUsage/models/EnhancedCurrentDailyUsageModel.js
+index f026a0f..7264b5f 100644
+--- a/src/BBVAS/EnhancedCurrentDailyUsage/models/EnhancedCurrentDailyUsageModel.js
++++ b/src/BBVAS/EnhancedCurrentDailyUsage/models/EnhancedCurrentDailyUsageModel.js
+@@ -1 +1,37 @@
+-// EnhancedCurrentDailyUsageModel
+\ No newline at end of file
++const mongoose = require('mongoose');
++
++const usageCharacteristicSchema = new mongoose.Schema({
++  name: String,
++  valueType: String,
++  value: mongoose.Schema.Types.Mixed
++});
++
++const relatedPartySchema = new mongoose.Schema({
++  id: String,
++  name: String,
++  role: String,
++  '@referredType': String
++});
++
++const enhancedCurrentDailyUsageSchema = new mongoose.Schema({
++  id: { type: String, required: true, unique: true },
++  href: String,
++  usageDate: { type: Date, default: Date.now },
++  description: String,
++  usageType: String,
++  status: { type: String, default: "received" },
++  subscriberID: String,
++  billDate: String,
++  usageCharacteristic: [usageCharacteristicSchema],
++  relatedParty: [relatedPartySchema],
++  usageSpecification: {
++    id: String,
++    name: String,
++    '@referredType': String
++  }
++});
++
++module.exports = mongoose.model(
++  'EnhancedCurrentDailyUsage',
++  enhancedCurrentDailyUsageSchema
++);
+diff --git a/src/BBVAS/EnhancedCurrentDailyUsage/routes/EnhancedCurrentDailyUsageRoutes.js b/src/BBVAS/EnhancedCurrentDailyUsage/routes/EnhancedCurrentDailyUsageRoutes.js
+new file mode 100644
+index 0000000..a49f6de
+--- /dev/null
++++ b/src/BBVAS/EnhancedCurrentDailyUsage/routes/EnhancedCurrentDailyUsageRoutes.js
+@@ -0,0 +1,11 @@
++const express = require('express');
++const router = express.Router();
++const EnhancedCurrentDailyUsageController = require('../controllers/EnhancedCurrentDailyUsageController');
++
++// GET /tmf-api/usageManagement/v4/usage/EnhancedCurrentDailyUsage
++router.get(
++  '/EnhancedCurrentDailyUsage',
++  EnhancedCurrentDailyUsageController.getEnhancedCurrentDailyUsage
++);
++
++module.exports = router;
+diff --git a/src/app.js b/src/app.js
+index b4b648b..b879472 100644
+--- a/src/app.js
++++ b/src/app.js
+@@ -1,6 +1,9 @@
+ const express = require('express');
+ const app = express();
++
++// Import Routes
+ const promotionRoutes = require('./BBVAS/BonusData/routes/promotionRoutes');
++const enhancedCurrentDailyUsageRoutes = require('./BBVAS/Usage/routes/EnhancedCurrentDailyUsageRoutes');
+ // const accountRoutes = require('./routes/account.routes');
+ 
+ // Middleware
+@@ -9,6 +12,7 @@ app.use(express.urlencoded({ extended: true }));
+ 
+ // Routes
+ app.use('/tmf-api/promotionManagement/v4/promotion', promotionRoutes);
++app.use('/tmf-api/usageManagement/v4/usage', enhancedCurrentDailyUsageRoutes);
+ // app.use('/api/Account', accountRoutes);
+ 
+ // Health check
+-- 
+2.49.0.windows.1
+

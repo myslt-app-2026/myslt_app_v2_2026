@@ -88,7 +88,23 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
     if (!mounted) return;
     if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Account created successfully! Please enter the OTP sent to your mobile.'),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
       context.pushReplacement(AppRoutes.otp, extra: _mobileCtrl.text.trim());
+    } else {
+      final err = ref.read(authNotifierProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(err ?? 'Registration failed'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 

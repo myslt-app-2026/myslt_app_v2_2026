@@ -1,5 +1,5 @@
 /// Domain-level failure types for the mySLT app.
-/// Use these in Either<Failure, T> returns from repositories.
+/// Use these in `Either<Failure, T>` returns from repositories.
 sealed class Failure {
   const Failure({required this.message, this.code});
 

@@ -1,48 +1,42 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'interceptors/auth_interceptor.dart';
-import 'interceptors/logging_interceptor.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'api_constants.dart';
 
-/// The base URL for the mySLT API.
-/// Override this with your environment variable in production.
-const _kBaseUrl = 'https://api.myslt.lk/v1';
+/// Centralized Dio Network Client.
+class DioClient {
+  DioClient._() {
+    _dio = Dio(
+      BaseOptions(
+        baseUrl: ApiConstants.baseUrl,
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 15),
+        sendTimeout: const Duration(seconds: 15),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      ),
+    );
 
-/// Configured Dio HTTP client with auth + logging interceptors.
-///
-/// Usage:
-/// ```dart
-/// final dio = ref.read(dioClientProvider);
-/// final response = await dio.get('/account/summary');
-/// ```
-Dio createDioClient({String baseUrl = _kBaseUrl}) {
-  const storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-  );
+    _dio.interceptors.add(
+      PrettyDioLogger(
+        requestHeader: true,
+        requestBody: true,
+        responseBody: true,
+        responseHeader: false,
+        error: true,
+        compact: true,
+      ),
+    );
+  }
 
-  final dio = Dio(
-    BaseOptions(
-      baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 30),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ),
-  );
+  static final DioClient _instance = DioClient._();
+  static DioClient get instance => _instance;
 
-  dio.interceptors.addAll([
-    AuthInterceptor(storage),
-    LoggingInterceptor(),
-  ]);
+  late final Dio _dio;
+  Dio get dio => _dio;
 
-  return dio;
+  void addInterceptor(Interceptor interceptor) {
+    _dio.interceptors.add(interceptor);
+  }
 }
-
-/// Riverpod provider for the Dio HTTP client singleton.
-final dioClientProvider = Provider<Dio>((ref) {
-  final dio = createDioClient();
-  ref.onDispose(dio.close);
-  return dio;
-});

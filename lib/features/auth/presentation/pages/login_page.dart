@@ -277,6 +277,33 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               ).animate().fadeIn(delay: 500.ms),
                               const SizedBox(height: AppSpacing.lg),
 
+                              if (authState.error != null) ...[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.error.withAlpha(20),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: AppColors.error.withAlpha(80)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 20),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          authState.error!,
+                                          style: AppTextStyles.caption.copyWith(
+                                            color: AppColors.error,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: AppSpacing.md),
+                              ],
+
                               // Submit Button
                               AppButton(
                                 label: 'Sign In',

@@ -1,4 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/auth/data/repositories/auth_repository.dart';
+
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  return AuthRepository();
+});
 
 /// Represents the authentication state used by the router guard.
 class AuthStateModel {
@@ -12,7 +17,6 @@ class AuthStateModel {
 }
 
 /// Provider that exposes the current auth state to GoRouter.
-/// In the demo, this is driven by [authNotifierProvider].
 final authStateProvider = Provider<AuthStateModel>((ref) {
   final authNotifier = ref.watch(authNotifierProvider);
   return AuthStateModel(
@@ -21,20 +25,23 @@ final authStateProvider = Provider<AuthStateModel>((ref) {
   );
 });
 
-/// Holds the mutable auth state (user + loading flag).
+/// Holds the mutable auth state.
 class AuthState {
   const AuthState({
     this.user,
+    this.registrationId,
     this.isLoading = false,
     this.error,
   });
 
-  final String? user; // Demo: just store username string
+  final String? user;
+  final String? registrationId;
   final bool isLoading;
   final String? error;
 
   AuthState copyWith({
     String? user,
+    String? registrationId,
     bool? isLoading,
     String? error,
     bool clearUser = false,
@@ -42,31 +49,48 @@ class AuthState {
   }) {
     return AuthState(
       user: clearUser ? null : (user ?? this.user),
+      registrationId: registrationId ?? this.registrationId,
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : (error ?? this.error),
     );
   }
 }
 
-/// Auth notifier — manages login, logout, and registration state.
-/// Demo: simulates a 1.5-second network delay then succeeds.
+/// Auth notifier — manages login, logout, registration, and OTP verification with real backend endpoints.
 class AuthNotifier extends Notifier<AuthState> {
+  late final AuthRepository _authRepository;
+
   @override
-  AuthState build() => const AuthState();
+  AuthState build() {
+    _authRepository = ref.watch(authRepositoryProvider);
+    _checkInitialSession();
+    return const AuthState();
+  }
+
+  Future<void> _checkInitialSession() async {
+    final hasSession = await _authRepository.checkSession();
+    if (hasSession) {
+      state = state.copyWith(user: 'Logged User');
+    }
+  }
 
   Future<bool> login(String username, String password) async {
     state = state.copyWith(isLoading: true, clearError: true);
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 1500));
+    final result = await _authRepository.login(
+      username: username,
+      password: password,
+    );
 
-    // Demo: accept any non-empty credentials
-    if (username.isNotEmpty && password.isNotEmpty) {
-      state = AuthState(user: username);
+    if (result.isSuccess) {
+      state = AuthState(
+        user: result.name ?? username,
+        isLoading: false,
+      );
       return true;
     } else {
       state = state.copyWith(
         isLoading: false,
-        error: 'Invalid username or password',
+        error: result.message ?? 'Invalid username or password',
       );
       return false;
     }
@@ -81,26 +105,66 @@ class AuthNotifier extends Notifier<AuthState> {
     required String password,
   }) async {
     state = state.copyWith(isLoading: true, clearError: true);
-    await Future.delayed(const Duration(milliseconds: 1500));
-    state = AuthState(user: email);
-    return true;
+
+    final result = await _authRepository.register(
+      name: name,
+      mobile: mobile,
+      email: email,
+      password: password,
+      nic: nic,
+      accountNumber: accountNumber,
+    );
+
+    if (result.isSuccess) {
+      state = state.copyWith(
+        isLoading: false,
+        registrationId: result.registrationId,
+      );
+      return true;
+    } else {
+      state = state.copyWith(
+        isLoading: false,
+        error: result.message ?? 'Registration failed',
+      );
+      return false;
+    }
   }
 
-  Future<bool> verifyOtp(String otp) async {
+  Future<bool> verifyOtp(String otp, {String? registrationId}) async {
     state = state.copyWith(isLoading: true, clearError: true);
-    await Future.delayed(const Duration(milliseconds: 1000));
-    // Demo: OTP 123456 is always valid
-    if (otp == '123456') {
-      state = state.copyWith(isLoading: false, clearError: true);
-      return true;
+    final regId = registrationId ?? state.registrationId;
+
+    if (regId == null || regId.isEmpty) {
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Missing registration session ID. Please try registering again.',
+      );
+      return false;
     }
-    state = state.copyWith(isLoading: false, error: 'Invalid OTP');
-    return false;
+
+    final result = await _authRepository.verifyOtp(
+      registrationId: regId,
+      otp: otp,
+    );
+
+    if (result.isSuccess) {
+      state = AuthState(
+        user: 'Logged User',
+        isLoading: false,
+      );
+      return true;
+    } else {
+      state = state.copyWith(
+        isLoading: false,
+        error: result.message ?? 'Invalid OTP',
+      );
+      return false;
+    }
   }
 
   Future<void> logout() async {
     state = state.copyWith(isLoading: true);
-    await Future.delayed(const Duration(milliseconds: 500));
+    await _authRepository.logout();
     state = const AuthState();
   }
 
@@ -112,3 +176,4 @@ class AuthNotifier extends Notifier<AuthState> {
 final authNotifierProvider = NotifierProvider<AuthNotifier, AuthState>(
   AuthNotifier.new,
 );
+
