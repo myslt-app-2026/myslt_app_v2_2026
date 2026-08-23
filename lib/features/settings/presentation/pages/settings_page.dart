@@ -38,7 +38,7 @@ class SettingsPage extends ConsumerWidget {
                 trailing: Switch(
                   value: settings.isDarkMode,
                   onChanged: (v) => ref.read(settingsProvider.notifier).toggleDarkMode(),
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
               ),
               _SettingsTile(
@@ -67,7 +67,7 @@ class SettingsPage extends ConsumerWidget {
                 trailing: Switch(
                   value: settings.pushNotifications,
                   onChanged: (v) => ref.read(settingsProvider.notifier).togglePushNotifications(),
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
               ),
               _SettingsTile(
@@ -76,7 +76,7 @@ class SettingsPage extends ConsumerWidget {
                 trailing: Switch(
                   value: settings.emailAlerts,
                   onChanged: (v) => ref.read(settingsProvider.notifier).toggleEmailAlerts(),
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                 ),
               ),
             ],
