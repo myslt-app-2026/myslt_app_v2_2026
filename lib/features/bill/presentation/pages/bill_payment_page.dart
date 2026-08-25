@@ -157,47 +157,53 @@ class _BillPaymentPageState extends State<BillPaymentPage> {
                 .fadeIn(duration: 300.ms, delay: 100.ms),
             const SizedBox(height: AppSpacing.md),
 
-            ..._methods.asMap().entries.map((e) {
-              final index = e.key;
-              final (label, icon, color) = e.value;
-              return Container(
-                margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                  border: Border.all(
-                    color: _selectedMethod == index
-                        ? AppColors.primary
-                        : AppColors.borderLight,
-                    width: _selectedMethod == index ? 2 : 1,
-                  ),
-                ),
-                child: RadioListTile<int>(
-                  value: index,
-                  groupValue: _selectedMethod,
-                  onChanged: (v) => setState(() => _selectedMethod = v!),
-                  activeColor: AppColors.primary,
-                  title: Row(
-                    children: [
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: color.withAlpha(26),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(icon, color: color, size: 18),
+            RadioGroup<int>(
+              groupValue: _selectedMethod,
+              onChanged: (v) {
+                if (v != null) setState(() => _selectedMethod = v);
+              },
+              child: Column(
+                children: _methods.asMap().entries.map((e) {
+                  final index = e.key;
+                  final (label, icon, color) = e.value;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                      border: Border.all(
+                        color: _selectedMethod == index
+                            ? AppColors.primary
+                            : AppColors.borderLight,
+                        width: _selectedMethod == index ? 2 : 1,
                       ),
-                      const SizedBox(width: AppSpacing.md),
-                      Text(label, style: AppTextStyles.titleSmall),
-                    ],
-                  ),
-                ),
-              ).animate().fadeIn(
-                    duration: 300.ms,
-                    delay: Duration(milliseconds: 150 + index * 60),
-                  );
-            }),
+                    ),
+                    child: RadioListTile<int>(
+                      value: index,
+                      activeColor: AppColors.primary,
+                      title: Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: color.withAlpha(26),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(icon, color: color, size: 18),
+                          ),
+                          const SizedBox(width: AppSpacing.md),
+                          Text(label, style: AppTextStyles.titleSmall),
+                        ],
+                      ),
+                    ),
+                  ).animate().fadeIn(
+                        duration: 300.ms,
+                        delay: Duration(milliseconds: 150 + index * 60),
+                      );
+                }).toList(),
+              ),
+            ),
             const SizedBox(height: AppSpacing.xl),
 
             AppButton(

@@ -43,62 +43,68 @@ class _PackageUpgradePageState extends State<PackageUpgradePage> {
                 .animate().fadeIn(),
             const SizedBox(height: AppSpacing.md),
 
-            ...packages.asMap().entries.map((e) {
-              final p = e.value;
-              final isSelected = _selectedIndex == e.key;
-              final isCurrent = e.key == 1;
+            RadioGroup<int>(
+              groupValue: _selectedIndex,
+              onChanged: (v) {
+                if (v != null && v != 1) setState(() => _selectedIndex = v);
+              },
+              child: Column(
+                children: packages.asMap().entries.map((e) {
+                  final p = e.value;
+                  final isSelected = _selectedIndex == e.key;
+                  final isCurrent = e.key == 1;
 
-              return GestureDetector(
-                onTap: isCurrent ? null : () => setState(() => _selectedIndex = e.key),
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: AppSpacing.md),
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                    border: Border.all(
-                      color: isSelected ? AppColors.primary : AppColors.borderLight,
-                      width: isSelected ? 2 : 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Radio<int>(
-                        value: e.key,
-                        groupValue: _selectedIndex,
-                        onChanged: isCurrent ? null : (v) => setState(() => _selectedIndex = v!),
-                        activeColor: AppColors.primary,
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(p.name, style: AppTextStyles.titleSmall),
-                                if (isCurrent) ...[
-                                  const SizedBox(width: AppSpacing.xs),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.successLight,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text('Current', style: AppTextStyles.caption.copyWith(color: AppColors.success)),
-                                  ),
-                                ],
-                              ],
-                            ),
-                            Text(p.dataLabel, style: AppTextStyles.bodySmall),
-                          ],
+                  return GestureDetector(
+                    onTap: isCurrent ? null : () => setState(() => _selectedIndex = e.key),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                        border: Border.all(
+                          color: isSelected ? AppColors.primary : AppColors.borderLight,
+                          width: isSelected ? 2 : 1,
                         ),
                       ),
-                      Text(p.priceLabel, style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary)),
-                    ],
-                  ),
-                ).animate(delay: Duration(milliseconds: e.key * 100)).fadeIn(duration: 300.ms),
-              );
-            }),
+                      child: Row(
+                        children: [
+                          Radio<int>(
+                            value: e.key,
+                            activeColor: AppColors.primary,
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(p.name, style: AppTextStyles.titleSmall),
+                                    if (isCurrent) ...[
+                                      const SizedBox(width: AppSpacing.xs),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.successLight,
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Text('Current', style: AppTextStyles.caption.copyWith(color: AppColors.success)),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                Text(p.dataLabel, style: AppTextStyles.bodySmall),
+                              ],
+                            ),
+                          ),
+                          Text(p.priceLabel, style: AppTextStyles.labelLarge.copyWith(color: AppColors.primary)),
+                        ],
+                      ),
+                    ).animate(delay: Duration(milliseconds: e.key * 100)).fadeIn(duration: 300.ms),
+                  );
+                }).toList(),
+              ),
+            ),
             const SizedBox(height: AppSpacing.xl),
 
             // Comparison

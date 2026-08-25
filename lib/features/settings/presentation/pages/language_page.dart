@@ -39,40 +39,43 @@ class LanguagePage extends ConsumerWidget {
               borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
               border: Border.all(color: AppColors.dividerLight),
             ),
-            child: Column(
-              children: _languages.map((lang) {
-                final (code, label, flag) = lang;
-                final isSelected = settings.languageCode == code;
-                return RadioListTile<String>(
-                  value: code,
-                  groupValue: settings.languageCode,
-                  activeColor: AppColors.primary,
-                  onChanged: (v) {
-                    if (v != null) {
-                      ref.read(settingsProvider.notifier).setLanguage(v);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Language changed to $label'),
-                          backgroundColor: AppColors.success,
+            child: RadioGroup<String>(
+              groupValue: settings.languageCode,
+              onChanged: (v) {
+                if (v != null) {
+                  ref.read(settingsProvider.notifier).setLanguage(v);
+                  final selected = _languages.firstWhere((l) => l.$1 == v);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Language changed to ${selected.$2}'),
+                      backgroundColor: AppColors.success,
+                    ),
+                  );
+                }
+              },
+              child: Column(
+                children: _languages.map((lang) {
+                  final (code, label, flag) = lang;
+                  final isSelected = settings.languageCode == code;
+                  return RadioListTile<String>(
+                    value: code,
+                    activeColor: AppColors.primary,
+                    title: Row(
+                      children: [
+                        Text(flag, style: const TextStyle(fontSize: 24)),
+                        const SizedBox(width: AppSpacing.md),
+                        Text(
+                          label,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                            color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                          ),
                         ),
-                      );
-                    }
-                  },
-                  title: Row(
-                    children: [
-                      Text(flag, style: TextStyle(fontSize: 24)),
-                      const SizedBox(width: AppSpacing.md),
-                      Text(
-                        label,
-                        style: AppTextStyles.bodyMedium.copyWith(
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                          color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
