@@ -70,36 +70,58 @@ class UsageRepository {
     return MockData.accountSummary;
   }
 
-  /// Fetch hourly data usage breakdown for a given date
+  /// Fetch broadband data usage for the current month via
+  /// GET /api/ISP_SOA/CurrentMonthDailyUsage?billDate=YYYY-MM-DD
+  ///
+  /// The endpoint returns daily usage records for the billing month.
+  /// We map each day record to an HourlyUsageModel so the bar chart
+  /// renders one bar per record (hour slot = day index % 24).
   Future<List<HourlyUsageModel>> getDailyHourlyUsage({
     String? subscriberId,
     DateTime? date,
   }) async {
-    final effectiveId = subscriberId ??
-        await TokenStorage.instance.getUsername() ??
-        'customer-123';
+    final targetDate = date ?? DateTime.now();
+    final billDate =
+        '${targetDate.year}-${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}';
 
     try {
       final response = await _dio.get(
-        ApiConstants.dailyUsage,
-        queryParameters: {
-          'id': effectiveId,
-          if (date != null)
-            'usageDate.gte': date.toIso8601String().split('T').first,
-        },
+        ApiConstants.currentMonthDailyUsage,
+        queryParameters: {'billDate': billDate},
       );
 
       if (response.statusCode == 200 && response.data != null) {
-        final list = response.data;
+        final body = response.data as Map<String, dynamic>;
+        final list = body['data'];
+
         if (list is List && list.isNotEmpty) {
-          return list.asMap().entries.map((entry) {
+          // Sort by createdAt ascending so chart shows chronological order
+          final sorted = List<Map<String, dynamic>>.from(
+            list.map((e) => e as Map<String, dynamic>),
+          )..sort((a, b) {
+              final ta = DateTime.tryParse(a['createdAt']?.toString() ?? '') ??
+                  DateTime(0);
+              final tb = DateTime.tryParse(b['createdAt']?.toString() ?? '') ??
+                  DateTime(0);
+              return ta.compareTo(tb);
+            });
+
+          return sorted.asMap().entries.map((entry) {
             final idx = entry.key;
             final item = entry.value;
+
+            // volume field is in MB
             final vol = (item['volume'] is num)
                 ? (item['volume'] as num).toDouble()
-                : ((item['usageCharacteristic']?[0]?['value'] as num?)?.toDouble() ?? 500.0);
+                : 0.0;
+
+            // Use createdAt hour if available, else spread evenly
+            final createdAt =
+                DateTime.tryParse(item['createdAt']?.toString() ?? '');
+            final hour = createdAt?.hour ?? (idx % 24);
+
             return HourlyUsageModel(
-              hour: (idx * 3) % 24,
+              hour: hour,
               usedMB: vol,
               downloadMB: vol * 0.8,
               uploadMB: vol * 0.2,
@@ -107,10 +129,14 @@ class UsageRepository {
           }).toList();
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[UsageRepository] getCurrentMonthDailyUsage error: $e');
+    }
 
+    // Fallback to mock data if API unavailable
     return MockData.todayHourlyUsage;
   }
+
 
   /// Fetch monthly usage breakdown
   Future<List<DailyUsageModel>> getMonthlyUsage({String? subscriberId}) async {

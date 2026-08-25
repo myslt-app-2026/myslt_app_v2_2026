@@ -43,4 +43,5 @@ class ApiConstants {
   static const String freeData = '/api/ISP_SOA/dashboard/free_data';
   static const String bonusData = '/api/ISP_SOA/dashboard/bonus_data';
   static const String myPackage = '/api/ISP_SOA/dashboard/mypackage';
+  static const String currentMonthDailyUsage = '/api/ISP_SOA/CurrentMonthDailyUsage';
 }
