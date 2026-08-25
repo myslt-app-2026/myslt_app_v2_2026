@@ -79,6 +79,9 @@ class _DailyUsagePageState extends ConsumerState<DailyUsagePage> {
     double total,
     DateTime selectedDate,
   ) {
+    final maxUsageMB = usage.fold(0.0, (m, u) => u.usedMB > m ? u.usedMB : m);
+    final chartMaxY = maxUsageMB > 0 ? (maxUsageMB * 1.25).ceilToDouble() : 1200.0;
+
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.pagePadding),
       child: Column(
@@ -136,7 +139,7 @@ class _DailyUsagePageState extends ConsumerState<DailyUsagePage> {
             child: BarChart(
               BarChartData(
                 alignment: BarChartAlignment.spaceAround,
-                maxY: 1200,
+                maxY: chartMaxY,
                 barTouchData: BarTouchData(
                   enabled: true,
                   touchTooltipData: BarTouchTooltipData(

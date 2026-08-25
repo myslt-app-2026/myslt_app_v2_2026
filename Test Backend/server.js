@@ -1,6 +1,13 @@
 require("dotenv").config();
+const dns = require("dns");
 const mongoose = require("mongoose");
 const app = require("./src/app");
+
+// Fix Windows Node.js SRV lookup issues for MongoDB Atlas
+try {
+  dns.setDefaultResultOrder("ipv4first");
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch (_) {}
 
 const MONGO_URI = process.env.MONGO_URI;
 let PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
