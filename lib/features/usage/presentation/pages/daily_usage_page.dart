@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -10,30 +11,20 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_shimmer.dart';
 import '../../data/models/usage_model.dart';
+import '../../providers/usage_provider.dart';
 
-class DailyUsagePage extends StatefulWidget {
+class DailyUsagePage extends ConsumerStatefulWidget {
   const DailyUsagePage({super.key});
 
   @override
-  State<DailyUsagePage> createState() => _DailyUsagePageState();
+  ConsumerState<DailyUsagePage> createState() => _DailyUsagePageState();
 }
 
-class _DailyUsagePageState extends State<DailyUsagePage> {
-  DateTime _selectedDate = DateTime.now();
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      if (mounted) setState(() => _isLoading = false);
-    });
-  }
-
+class _DailyUsagePageState extends ConsumerState<DailyUsagePage> {
   @override
   Widget build(BuildContext context) {
-    final usage = MockData.todayHourlyUsage;
-    final totalUsed = usage.fold(0.0, (s, u) => s + u.usedMB);
+    final selectedDate = ref.watch(selectedUsageDateProvider);
+    final usageAsync = ref.watch(dailyUsageProvider);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
@@ -55,25 +46,39 @@ class _DailyUsagePageState extends State<DailyUsagePage> {
             ],
           ),
           SliverToBoxAdapter(
-            child: _isLoading
-                ? Padding(
-                    padding: const EdgeInsets.all(AppSpacing.pagePadding),
-                    child: Column(children: [
-                      AppShimmer.card(height: 60),
-                      const SizedBox(height: AppSpacing.lg),
-                      AppShimmer.card(height: 240),
-                      const SizedBox(height: AppSpacing.lg),
-                      AppShimmer.card(height: 160),
-                    ]),
-                  )
-                : _buildContent(context, usage, totalUsed),
+            child: usageAsync.when(
+              loading: () => Padding(
+                padding: const EdgeInsets.all(AppSpacing.pagePadding),
+                child: Column(children: [
+                  AppShimmer.card(height: 60),
+                  const SizedBox(height: AppSpacing.lg),
+                  AppShimmer.card(height: 240),
+                  const SizedBox(height: AppSpacing.lg),
+                  AppShimmer.card(height: 160),
+                ]),
+              ),
+              data: (usage) {
+                final totalUsed = usage.fold(0.0, (s, u) => s + u.usedMB);
+                return _buildContent(context, usage, totalUsed, selectedDate);
+              },
+              error: (_, __) {
+                final usage = MockData.todayHourlyUsage;
+                final totalUsed = usage.fold(0.0, (s, u) => s + u.usedMB);
+                return _buildContent(context, usage, totalUsed, selectedDate);
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, List<HourlyUsageModel> usage, double total) {
+  Widget _buildContent(
+    BuildContext context,
+    List<HourlyUsageModel> usage,
+    double total,
+    DateTime selectedDate,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.pagePadding),
       child: Column(
@@ -81,8 +86,9 @@ class _DailyUsagePageState extends State<DailyUsagePage> {
         children: [
           // Date picker
           _DateSelector(
-            selected: _selectedDate,
-            onChanged: (d) => setState(() => _selectedDate = d),
+            selected: selectedDate,
+            onChanged: (d) =>
+                ref.read(dailyUsageProvider.notifier).fetchForDate(d),
           ).animate().fadeIn(duration: 300.ms),
           const SizedBox(height: AppSpacing.xl),
 
@@ -101,7 +107,7 @@ class _DailyUsagePageState extends State<DailyUsagePage> {
               ),
               _UsageStat(
                 label: 'Avg/Hour',
-                value: AppFormatters.formatDataSizeCompact(total / 24),
+                value: AppFormatters.formatDataSizeCompact(total > 0 ? total / 24 : 0),
                 color: AppColors.warning,
               ),
             ],

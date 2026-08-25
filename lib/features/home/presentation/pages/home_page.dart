@@ -10,12 +10,13 @@ import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_shimmer.dart';
+import '../../data/models/account_summary_model.dart';
+import '../../data/models/promotion_model.dart';
+import '../../providers/home_provider.dart';
 import '../widgets/account_summary_card.dart';
 import '../widgets/promotion_carousel.dart';
 import '../widgets/quick_action_grid.dart';
 import '../widgets/service_section.dart';
-
-final _homeLoadingProvider = StateProvider<bool>((ref) => true);
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -25,30 +26,16 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  @override
-  void initState() {
-    super.initState();
-    _simulateLoading();
-  }
-
-  Future<void> _simulateLoading() async {
-    await Future.delayed(const Duration(milliseconds: 1800));
-    if (mounted) {
-      ref.read(_homeLoadingProvider.notifier).state = false;
-    }
-  }
-
   Future<void> _handleRefresh() async {
-    ref.read(_homeLoadingProvider.notifier).state = true;
-    await Future.delayed(const Duration(milliseconds: 1500));
-    if (mounted) {
-      ref.read(_homeLoadingProvider.notifier).state = false;
-    }
+    ref.invalidate(homeProvider);
+    ref.invalidate(promotionsProvider);
+    await ref.read(homeProvider.future);
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(_homeLoadingProvider);
+    final summaryAsync = ref.watch(homeProvider);
+    final promotionsAsync = ref.watch(promotionsProvider);
     final authState = ref.watch(authNotifierProvider);
     final greeting = AppFormatters.greeting();
     final userName = authState.user ?? 'Kasun';
@@ -70,17 +57,21 @@ class _HomePageState extends ConsumerState<HomePage> {
               backgroundColor: AppColors.primary,
               surfaceTintColor: Colors.transparent,
               flexibleSpace: FlexibleSpaceBar(
-                background: _buildHeaderBg(greeting, userName),
+                background: _buildHeaderBg(
+                  greeting,
+                  userName,
+                  summaryAsync.valueOrNull?.accountNumber ?? 'ACC-0094-7821',
+                ),
                 collapseMode: CollapseMode.pin,
               ),
               actions: [
                 IconButton(
-                  icon: Icon(Icons.notifications_outlined,
+                  icon: const Icon(Icons.notifications_outlined,
                       color: Colors.white),
                   onPressed: () => context.push(AppRoutes.notifications),
                 ),
                 IconButton(
-                  icon: Icon(Icons.person_outline_rounded,
+                  icon: const Icon(Icons.person_outline_rounded,
                       color: Colors.white),
                   onPressed: () => context.push(AppRoutes.profile),
                 ),
@@ -90,9 +81,19 @@ class _HomePageState extends ConsumerState<HomePage> {
 
             // ── Content ─────────────────────────────────────────────────
             SliverToBoxAdapter(
-              child: isLoading
-                  ? AppShimmer.dashboard()
-                  : _buildContent(context),
+              child: summaryAsync.when(
+                data: (summary) => _buildContent(
+                  context,
+                  summary,
+                  promotionsAsync.valueOrNull ?? MockData.promotions,
+                ),
+                loading: () => AppShimmer.dashboard(),
+                error: (_, __) => _buildContent(
+                  context,
+                  MockData.accountSummary,
+                  MockData.promotions,
+                ),
+              ),
             ),
           ],
         ),
@@ -100,7 +101,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _buildHeaderBg(String greeting, String userName) {
+  Widget _buildHeaderBg(String greeting, String userName, String accountNumber) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -161,7 +162,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      MockData.accountSummary.accountNumber,
+                      accountNumber,
                       style: AppTextStyles.labelMedium.copyWith(
                         color: Colors.white,
                       ),
@@ -176,10 +177,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _buildContent(BuildContext context) {
-    final summary = MockData.accountSummary;
-    final promotions = MockData.promotions;
-
+  Widget _buildContent(
+    BuildContext context,
+    AccountSummaryModel summary,
+    List<PromotionModel> promotions,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

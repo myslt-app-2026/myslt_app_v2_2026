@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'api_constants.dart';
+import 'auth_interceptor.dart';
 
 /// Centralized Dio Network Client.
 class DioClient {
@@ -18,7 +19,8 @@ class DioClient {
       ),
     );
 
-    _dio.interceptors.add(
+    _dio.interceptors.addAll([
+      AuthInterceptor(),
       PrettyDioLogger(
         requestHeader: true,
         requestBody: true,
@@ -27,7 +29,7 @@ class DioClient {
         error: true,
         compact: true,
       ),
-    );
+    ]);
   }
 
   static final DioClient _instance = DioClient._();

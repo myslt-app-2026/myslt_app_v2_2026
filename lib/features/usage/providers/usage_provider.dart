@@ -1,6 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/usage_model.dart';
-import '../../../core/mock/mock_data.dart';
+import '../data/repositories/usage_repository.dart';
+
+// ─── Repository Provider ──────────────────────────────────────────────────────
+
+final usageRepositoryProvider = Provider<UsageRepository>((ref) {
+  return UsageRepository();
+});
 
 // ─── Selected Date ────────────────────────────────────────────────────────────
 
@@ -14,14 +20,16 @@ class DailyUsageNotifier extends AsyncNotifier<List<HourlyUsageModel>> {
   @override
   Future<List<HourlyUsageModel>> build() => _fetch();
 
-  Future<List<HourlyUsageModel>> _fetch() async {
-    await Future.delayed(const Duration(milliseconds: 900));
-    return MockData.todayHourlyUsage;
+  Future<List<HourlyUsageModel>> _fetch({DateTime? date}) async {
+    final repo = ref.read(usageRepositoryProvider);
+    final targetDate = date ?? ref.read(selectedUsageDateProvider);
+    return repo.getDailyHourlyUsage(date: targetDate);
   }
 
   Future<void> fetchForDate(DateTime date) async {
+    ref.read(selectedUsageDateProvider.notifier).state = date;
     state = const AsyncLoading();
-    state = await AsyncValue.guard(_fetch);
+    state = await AsyncValue.guard(() => _fetch(date: date));
   }
 }
 
@@ -34,8 +42,13 @@ final dailyUsageProvider =
 class MonthlyUsageNotifier extends AsyncNotifier<List<DailyUsageModel>> {
   @override
   Future<List<DailyUsageModel>> build() async {
-    await Future.delayed(const Duration(milliseconds: 1000));
-    return MockData.monthlyUsage;
+    final repo = ref.read(usageRepositoryProvider);
+    return repo.getMonthlyUsage();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(build);
   }
 }
 

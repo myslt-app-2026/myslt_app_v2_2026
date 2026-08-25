@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/account_summary_model.dart';
 import '../data/models/promotion_model.dart';
 import '../../../core/mock/mock_data.dart';
+import '../../usage/providers/usage_provider.dart';
 
 // ─── Account Summary ──────────────────────────────────────────────────────────
 
@@ -10,9 +11,8 @@ class HomeNotifier extends AsyncNotifier<AccountSummaryModel> {
   Future<AccountSummaryModel> build() => _fetchSummary();
 
   Future<AccountSummaryModel> _fetchSummary() async {
-    // Simulate network delay — replace with real Dio call
-    await Future.delayed(const Duration(milliseconds: 1200));
-    return MockData.accountSummary;
+    final repo = ref.read(usageRepositoryProvider);
+    return repo.getAccountSummary();
   }
 
   Future<void> refresh() async {
