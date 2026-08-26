@@ -5,6 +5,7 @@ import '../../../../core/network/api_constants.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/storage/token_storage.dart';
 import '../../../home/data/models/account_summary_model.dart';
+import '../models/broadband_usage_model.dart';
 import '../models/usage_model.dart';
 
 class UsageRepository {
@@ -12,14 +13,14 @@ class UsageRepository {
 
   final Dio _dio;
 
-  /// Fetch live account usage summary (Used, Total, Bonus, Minutes, Expiry)
+  /// Endpoint 9: Fetch live account usage summary (Used, Total, Bonus, Minutes, Expiry)
+  /// GET /api/ISP_SOA/dashboard/summary?subscriberID=...
   Future<AccountSummaryModel> getAccountSummary({String? subscriberId}) async {
     final effectiveId = subscriberId ??
         await TokenStorage.instance.getUsername() ??
         '0112345678';
 
     try {
-      // 1. Try Endpoint 9: GET /api/ISP_SOA/dashboard/summary
       final response = await _dio.get(
         ApiConstants.dashboardSummary,
         queryParameters: {'subscriberID': effectiveId},
@@ -39,7 +40,8 @@ class UsageRepository {
         }
       }
     } catch (e) {
-      // Fallback to secondary usage endpoint if primary fails
+      debugPrint('[UsageRepository] getAccountSummary error: $e');
+      // Secondary fallback attempt via daily usage endpoint
       try {
         final fallbackRes = await _dio.get(
           '${ApiConstants.dailyUsage}/$effectiveId',
@@ -69,6 +71,57 @@ class UsageRepository {
 
     // Graceful fallback with realistic defaults
     return MockData.accountSummary;
+  }
+
+  /// Endpoint 10: Fetch current broadband data usage
+  /// GET /tmf-api/usageManagement/v4/usage
+  Future<BroadbandUsageModel> getCurrentBroadbandUsage({String? subscriberId}) async {
+    final effectiveId = subscriberId ??
+        await TokenStorage.instance.getUsername() ??
+        '0112345678';
+
+    try {
+      // 1. Try GET /tmf-api/usageManagement/v4/usage/:id
+      try {
+        final response = await _dio.get('${ApiConstants.currentUsage}/$effectiveId');
+        if (response.statusCode == 200 && response.data != null) {
+          final json = response.data is Map<String, dynamic>
+              ? response.data as Map<String, dynamic>
+              : Map<String, dynamic>.from(response.data as Map);
+          return BroadbandUsageModel.fromJson(json);
+        }
+      } catch (_) {}
+
+      // 2. Try GET /tmf-api/usageManagement/v4/usage?subscriberID=...
+      final response = await _dio.get(
+        ApiConstants.currentUsage,
+        queryParameters: {'subscriberID': effectiveId},
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data;
+        if (data is Map<String, dynamic>) {
+          return BroadbandUsageModel.fromJson(data);
+        } else if (data is List && data.isNotEmpty) {
+          return BroadbandUsageModel.fromJson(Map<String, dynamic>.from(data.first as Map));
+        }
+      }
+    } catch (e) {
+      debugPrint('[UsageRepository] getCurrentBroadbandUsage error: $e');
+    }
+
+    // Default fallback usage model
+    return BroadbandUsageModel(
+      id: 'USG-DEFAULT',
+      subscriberId: effectiveId,
+      volume: 47104.0,
+      unit: 'MB',
+      category: 'Broadband',
+      status: 'active',
+      usageDate: DateTime.now(),
+      maxAmount: 102400.0,
+      remainingAmount: 55296.0,
+    );
   }
 
   /// Fetch broadband data usage for the current month via

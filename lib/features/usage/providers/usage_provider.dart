@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/models/broadband_usage_model.dart';
 import '../data/models/usage_model.dart';
 import '../data/repositories/usage_repository.dart';
 
@@ -7,6 +8,27 @@ import '../data/repositories/usage_repository.dart';
 final usageRepositoryProvider = Provider<UsageRepository>((ref) {
   return UsageRepository();
 });
+
+// ─── Current Broadband Usage (Endpoint 10) ────────────────────────────────────
+
+class CurrentBroadbandUsageNotifier extends AsyncNotifier<BroadbandUsageModel> {
+  @override
+  Future<BroadbandUsageModel> build() => _fetch();
+
+  Future<BroadbandUsageModel> _fetch() async {
+    final repo = ref.read(usageRepositoryProvider);
+    return repo.getCurrentBroadbandUsage();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(_fetch);
+  }
+}
+
+final currentBroadbandUsageProvider =
+    AsyncNotifierProvider<CurrentBroadbandUsageNotifier, BroadbandUsageModel>(
+        CurrentBroadbandUsageNotifier.new);
 
 // ─── Selected Date ────────────────────────────────────────────────────────────
 
@@ -55,3 +77,4 @@ class MonthlyUsageNotifier extends AsyncNotifier<List<DailyUsageModel>> {
 final monthlyUsageProvider =
     AsyncNotifierProvider<MonthlyUsageNotifier, List<DailyUsageModel>>(
         MonthlyUsageNotifier.new);
+
