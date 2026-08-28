@@ -236,21 +236,26 @@ class UsageRepository {
     Map<String, dynamic> json,
     String defaultAccNum,
   ) {
-    final accNum = json['subscriberID']?.toString() ??
-        json['accountNumber']?.toString() ??
+    final accNum = json['accountNumber']?.toString() ??
+        json['subscriberID']?.toString() ??
         defaultAccNum;
     final plan = json['planName']?.toString() ??
         json['name']?.toString() ??
         'SLT Fiber Max 100';
-    final total = (json['totalDataMB'] as num?)?.toDouble() ?? 100000.0;
+    final total = (json['totalDataMB'] as num?)?.toDouble() ??
+        (json['total'] as num?)?.toDouble() ??
+        102400.0;
     final used = (json['usedDataMB'] as num?)?.toDouble() ??
         (json['volume'] as num?)?.toDouble() ??
-        62000.0;
-    final bonus = (json['bonusDataMB'] as num?)?.toDouble() ?? 5000.0;
-    final nightTotal = (json['nightDataMB'] as num?)?.toDouble() ?? 40000.0;
-    final nightUsed = (json['nightDataUsedMB'] as num?)?.toDouble() ?? 25000.0;
-    final freeMin = (json['freeMinutes'] as num?)?.toInt() ?? 100;
-    final usedMin = (json['usedMinutes'] as num?)?.toInt() ?? 25;
+        (json['used'] as num?)?.toDouble() ??
+        63488.0;
+    final bonus = (json['bonusDataMB'] as num?)?.toDouble() ??
+        (json['freeData'] as num?)?.toDouble() ??
+        5120.0;
+    final nightTotal = (json['nightDataMB'] as num?)?.toDouble() ?? 40960.0;
+    final nightUsed = (json['nightDataUsedMB'] as num?)?.toDouble() ?? 10240.0;
+    final freeMin = (json['freeMinutes'] as num?)?.toInt() ?? 75;
+    final usedMin = (json['usedMinutes'] as num?)?.toInt() ?? 0;
 
     DateTime expiry = DateTime.now().add(const Duration(days: 17));
     if (json['expiryDate'] != null) {
