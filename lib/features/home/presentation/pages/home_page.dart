@@ -13,6 +13,7 @@ import '../../../../core/widgets/app_shimmer.dart';
 import '../../data/models/account_summary_model.dart';
 import '../../data/models/promotion_model.dart';
 import '../../providers/home_provider.dart';
+import '../../../profile/providers/profile_provider.dart';
 import '../widgets/account_summary_card.dart';
 import '../widgets/promotion_carousel.dart';
 import '../widgets/quick_action_grid.dart';
@@ -29,6 +30,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Future<void> _handleRefresh() async {
     ref.invalidate(homeProvider);
     ref.invalidate(promotionsProvider);
+    ref.invalidate(profileProvider);
     await ref.read(homeProvider.future);
   }
 
@@ -36,9 +38,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final summaryAsync = ref.watch(homeProvider);
     final promotionsAsync = ref.watch(promotionsProvider);
-    final authState = ref.watch(authNotifierProvider);
+    final profileAsync = ref.watch(profileProvider);
     final greeting = AppFormatters.greeting();
-    final userName = authState.user ?? 'Kasun';
+    // Prefer real name from GetUserInfo (Endpoint 7); fall back to auth state or placeholder
+    final userName = profileAsync.valueOrNull?.name.split(' ').first
+        ?? ref.read(authNotifierProvider).user
+        ?? 'Kasun';
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,

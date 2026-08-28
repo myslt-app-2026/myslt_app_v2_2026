@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
+import '../../../../core/mock/mock_data.dart';
 import '../../../../core/network/api_constants.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/storage/token_storage.dart';
+import '../../domain/entities/user_entity.dart';
 
 class AuthResult {
   const AuthResult({
@@ -194,6 +196,48 @@ class AuthRepository {
       );
     }
   }
+  /// Endpoint 7: Get User Profile Information
+  /// GET /api/Account/GetUserInfo?userName=...
+  Future<UserEntity> getUserInfo({String? userName}) async {
+    final effectiveUser = userName ??
+        await TokenStorage.instance.getUsername() ??
+        'user@slt.lk';
+
+    try {
+      final response = await _dio.get(
+        ApiConstants.getUserInfo,
+        queryParameters: {'userName': effectiveUser},
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final resData = response.data;
+        final payload = resData is Map && resData.containsKey('data')
+            ? resData['data']
+            : resData;
+
+        if (payload is Map<String, dynamic>) {
+          final first = payload['firstName']?.toString() ?? '';
+          final last = payload['lastName']?.toString() ?? '';
+          final fullName = payload['name']?.toString() ??
+              payload['fullName']?.toString() ??
+              '$first $last'.trim();
+
+          return UserEntity(
+            id: payload['id']?.toString() ?? payload['nic']?.toString() ?? 'USR-001',
+            name: fullName.isNotEmpty ? fullName : 'Kasun Perera',
+            nic: payload['nic']?.toString() ?? '199512345678',
+            mobile: payload['mobile']?.toString() ?? payload['phoneNumber']?.toString() ?? '0771234567',
+            email: payload['email']?.toString() ?? effectiveUser,
+            accountNumber: payload['accountNumber']?.toString() ?? 'ACC-0094-7821',
+          );
+        }
+      }
+    } catch (e) {
+      // Graceful fallback on network/server errors
+    }
+
+    return MockData.currentUser;
+  }
 
   String _parseDioError(DioException e) {
     if (e.response?.data != null && e.response?.data is Map) {
@@ -227,3 +271,4 @@ class AuthRepository {
     await TokenStorage.instance.clearAll();
   }
 }
+

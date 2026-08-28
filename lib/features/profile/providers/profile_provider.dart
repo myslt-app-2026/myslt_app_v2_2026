@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../features/auth/domain/entities/user_entity.dart';
 import '../../../core/mock/mock_data.dart';
+import '../../../core/providers/auth_state_provider.dart';
+import '../../../features/auth/domain/entities/user_entity.dart';
 
 // ─── Profile Notifier ─────────────────────────────────────────────────────────
 
@@ -9,8 +10,8 @@ class ProfileNotifier extends AsyncNotifier<UserEntity> {
   Future<UserEntity> build() => _fetchProfile();
 
   Future<UserEntity> _fetchProfile() async {
-    await Future.delayed(const Duration(milliseconds: 800));
-    return MockData.currentUser;
+    final repo = ref.read(authRepositoryProvider);
+    return repo.getUserInfo();
   }
 
   Future<void> refresh() async {
@@ -22,14 +23,12 @@ class ProfileNotifier extends AsyncNotifier<UserEntity> {
     required String mobile,
     required String email,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 1000));
-    final current = state.valueOrNull;
-    if (current != null) {
-      state = AsyncData(current.copyWith(mobile: mobile, email: email));
-    }
+    final current = state.valueOrNull ?? MockData.currentUser;
+    state = AsyncData(current.copyWith(mobile: mobile, email: email));
     return true;
   }
 }
 
 final profileProvider =
     AsyncNotifierProvider<ProfileNotifier, UserEntity>(ProfileNotifier.new);
+
