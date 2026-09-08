@@ -45,4 +45,9 @@ class ApiConstants {
   static const String bonusData = '/api/ISP_SOA/dashboard/bonus_data';
   static const String myPackage = '/api/ISP_SOA/dashboard/mypackage';
   static const String currentMonthDailyUsage = '/api/ISP_SOA/CurrentMonthDailyUsage';
+
+  // ── Bills & E-Bill Endpoints ──
+  static const String eBillStatus = '/tmf-api/customerBillManagement/v5';
+  static const String billDownload = '/tmf-api/customerBillManagement/v5/BillDownload';
+  static const String billStatusRequest = '/tmf-api/customerBillManagement/v5/BillStatusRequest';
 }

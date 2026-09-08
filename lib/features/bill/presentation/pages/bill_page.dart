@@ -10,26 +10,41 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_shimmer.dart';
 import '../../data/models/bill_model.dart';
 
-class BillPage extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/bill_provider.dart';
+
+class BillPage extends ConsumerStatefulWidget {
   const BillPage({super.key});
 
   @override
-  State<BillPage> createState() => _BillPageState();
+  ConsumerState<BillPage> createState() => _BillPageState();
 }
 
-class _BillPageState extends State<BillPage> {
-  bool _isLoading = true;
+class _BillPageState extends ConsumerState<BillPage> {
+  bool _isDownloading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      if (mounted) setState(() => _isLoading = false);
-    });
+  Future<void> _handleDownloadPdf() async {
+    setState(() => _isDownloading = true);
+    final repo = ref.read(billRepositoryProvider);
+    final currentBill = ref.read(billProvider).valueOrNull ?? MockData.currentBill;
+    final res = await repo.downloadBillPdf(billId: currentBill.billId);
+    if (!mounted) return;
+    setState(() => _isDownloading = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(res['message'] ?? 'Downloading Monthly Bill PDF...'),
+        backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentBillAsync = ref.watch(billProvider);
+    final historyAsync = ref.watch(billHistoryProvider);
+
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       body: CustomScrollView(
@@ -43,33 +58,47 @@ class _BillPageState extends State<BillPage> {
             ),
             actions: [
               IconButton(
-                icon: Icon(Icons.download_outlined, color: Colors.white),
-                onPressed: () {},
+                icon: _isDownloading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.download_outlined, color: Colors.white),
+                onPressed: _isDownloading ? null : _handleDownloadPdf,
               ),
             ],
           ),
           SliverToBoxAdapter(
-            child: _isLoading
-                ? Padding(
-                    padding: const EdgeInsets.all(AppSpacing.pagePadding),
-                    child: Column(
-                      children: [
-                        AppShimmer.card(height: 220),
-                        const SizedBox(height: AppSpacing.lg),
-                        AppShimmer.listItem(count: 4),
-                      ],
-                    ),
-                  )
-                : _buildContent(context),
+            child: currentBillAsync.when(
+              data: (bill) => _buildContent(
+                context,
+                bill,
+                historyAsync.valueOrNull ?? MockData.billHistory,
+              ),
+              loading: () => Padding(
+                padding: const EdgeInsets.all(AppSpacing.pagePadding),
+                child: Column(
+                  children: [
+                    AppShimmer.card(height: 220),
+                    const SizedBox(height: AppSpacing.lg),
+                    AppShimmer.listItem(count: 4),
+                  ],
+                ),
+              ),
+              error: (_, __) => _buildContent(
+                context,
+                MockData.currentBill,
+                MockData.billHistory,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context) {
-    final bill = MockData.currentBill;
-    final history = MockData.billHistory;
+  Widget _buildContent(BuildContext context, BillModel bill, List<BillModel> history) {
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.pagePadding),

@@ -157,52 +157,64 @@ class _BillPaymentPageState extends State<BillPaymentPage> {
                 .fadeIn(duration: 300.ms, delay: 100.ms),
             const SizedBox(height: AppSpacing.md),
 
-            RadioGroup<int>(
-              groupValue: _selectedMethod,
-              onChanged: (v) {
-                if (v != null) setState(() => _selectedMethod = v);
-              },
-              child: Column(
-                children: _methods.asMap().entries.map((e) {
-                  final index = e.key;
-                  final (label, icon, color) = e.value;
-                  return Container(
+            Column(
+              children: _methods.asMap().entries.map((e) {
+                final index = e.key;
+                final (label, icon, color) = e.value;
+                final isSelected = _selectedMethod == index;
+                return InkWell(
+                  onTap: () => setState(() => _selectedMethod = index),
+                  borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+                  child: Container(
                     margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.md,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
                       border: Border.all(
-                        color: _selectedMethod == index
-                            ? AppColors.primary
-                            : AppColors.borderLight,
-                        width: _selectedMethod == index ? 2 : 1,
+                        color: isSelected ? AppColors.primary : AppColors.borderLight,
+                        width: isSelected ? 2 : 1,
                       ),
                     ),
-                    child: RadioListTile<int>(
-                      value: index,
-                      activeColor: AppColors.primary,
-                      title: Row(
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: color.withAlpha(26),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(icon, color: color, size: 18),
+                    child: Row(
+                      children: [
+                        Icon(
+                          isSelected
+                              ? Icons.radio_button_checked_rounded
+                              : Icons.radio_button_off_rounded,
+                          color: isSelected ? AppColors.primary : AppColors.textTertiary,
+                          size: 22,
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: color.withAlpha(26),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          const SizedBox(width: AppSpacing.md),
-                          Text(label, style: AppTextStyles.titleSmall),
-                        ],
-                      ),
+                          child: Icon(icon, color: color, size: 20),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Text(
+                            label,
+                            style: AppTextStyles.titleSmall.copyWith(
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ).animate().fadeIn(
-                        duration: 300.ms,
-                        delay: Duration(milliseconds: 150 + index * 60),
-                      );
-                }).toList(),
-              ),
+                  ),
+                ).animate().fadeIn(
+                      duration: 300.ms,
+                      delay: Duration(milliseconds: 150 + index * 60),
+                    );
+              }).toList(),
             ),
             const SizedBox(height: AppSpacing.xl),
 
