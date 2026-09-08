@@ -37,9 +37,9 @@ class ApiConstants {
   // ── Usage & Dashboard Endpoints ──
   static const String dashboardSummary = '/api/ISP_SOA/dashboard/summary';
   static const String currentUsage = '/tmf-api/usageManagement/v4/usage';
-  static const String dailyUsage = '/tmf-api/usageManagement/v4/daily/usage';
+  static const String dailyUsage = '/tmf-api/usageManagement/v4/daily';
   static const String enhancedDailyUsage = '/tmf-api/usageManagement/v4/usage/EnhancedCurrentDailyUsage';
-  static const String previousMonthUsage = '/tmf-api/usageManagement/v4/PreviousMonth/usage';
+  static const String previousMonthUsage = '/tmf-api/usageManagement/v4/PreviousMonth';
   static const String freeData = '/api/ISP_SOA/dashboard/free_data';
   static const String bonusData = '/api/ISP_SOA/dashboard/bonus_data';
   static const String myPackage = '/api/ISP_SOA/dashboard/mypackage';

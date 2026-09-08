@@ -78,3 +78,61 @@ final monthlyUsageProvider =
     AsyncNotifierProvider<MonthlyUsageNotifier, List<DailyUsageModel>>(
         MonthlyUsageNotifier.new);
 
+// ─── Free Data Bonus (Endpoint 13) ─────────────────────────────────────────────
+
+class FreeDataNotifier extends AsyncNotifier<Map<String, dynamic>> {
+  @override
+  Future<Map<String, dynamic>> build() async {
+    final repo = ref.read(usageRepositoryProvider);
+    return repo.getFreeDataBonus();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(build);
+  }
+}
+
+final freeDataProvider =
+    AsyncNotifierProvider<FreeDataNotifier, Map<String, dynamic>>(
+        FreeDataNotifier.new);
+
+// ─── Extra Bonus Data (Endpoint 14) ────────────────────────────────────────────
+
+class BonusDataNotifier extends AsyncNotifier<Map<String, dynamic>> {
+  @override
+  Future<Map<String, dynamic>> build() async {
+    final repo = ref.read(usageRepositoryProvider);
+    return repo.getExtraBonusData();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(build);
+  }
+}
+
+final bonusDataProvider =
+    AsyncNotifierProvider<BonusDataNotifier, Map<String, dynamic>>(
+        BonusDataNotifier.new);
+
+// ─── Active Internet Package (Endpoint 15) ────────────────────────────────────
+
+class MyPackageNotifier extends AsyncNotifier<Map<String, dynamic>> {
+  @override
+  Future<Map<String, dynamic>> build() async {
+    final repo = ref.read(usageRepositoryProvider);
+    return repo.getActiveInternetPackage();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(build);
+  }
+}
+
+final myPackageProvider =
+    AsyncNotifierProvider<MyPackageNotifier, Map<String, dynamic>>(
+        MyPackageNotifier.new);
+
+

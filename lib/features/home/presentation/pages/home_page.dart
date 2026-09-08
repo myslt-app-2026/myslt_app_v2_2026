@@ -19,6 +19,8 @@ import '../widgets/promotion_carousel.dart';
 import '../widgets/quick_action_grid.dart';
 import '../widgets/service_section.dart';
 
+import '../../../usage/providers/usage_provider.dart';
+
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -31,6 +33,12 @@ class _HomePageState extends ConsumerState<HomePage> {
     ref.invalidate(homeProvider);
     ref.invalidate(promotionsProvider);
     ref.invalidate(profileProvider);
+    ref.invalidate(currentBroadbandUsageProvider);
+    ref.invalidate(dailyUsageProvider);
+    ref.invalidate(monthlyUsageProvider);
+    ref.invalidate(freeDataProvider);
+    ref.invalidate(bonusDataProvider);
+    ref.invalidate(myPackageProvider);
     await ref.read(homeProvider.future);
   }
 
