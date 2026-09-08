@@ -23,9 +23,22 @@ class ProfileNotifier extends AsyncNotifier<UserEntity> {
     required String mobile,
     required String email,
   }) async {
+    final repo = ref.read(authRepositoryProvider);
     final current = state.valueOrNull ?? MockData.currentUser;
+    
+    final nameParts = current.name.trim().split(' ');
+    final firstName = nameParts.first;
+    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+
+    final result = await repo.updateUserInfo(
+      userName: email,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+    );
+
     state = AsyncData(current.copyWith(mobile: mobile, email: email));
-    return true;
+    return result.isSuccess;
   }
 }
 

@@ -33,6 +33,7 @@ class ApiConstants {
   static const String refreshToken = '/tmf-api/refreshToken';
   static const String changePassword = '/tmf-api/change-password';
   static const String getUserInfo = '/api/Account/GetUserInfo';
+  static const String updateUserInfo = '/api/Account/UpdateUserInfo';
 
   // ── Usage & Dashboard Endpoints ──
   static const String dashboardSummary = '/api/ISP_SOA/dashboard/summary';
