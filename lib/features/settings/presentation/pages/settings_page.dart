@@ -5,8 +5,92 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/router/app_router.dart';
+import '../../../../core/storage/token_storage.dart';
 import '../../providers/settings_provider.dart';
+
+void _showChangePasswordDialog(BuildContext context, WidgetRef ref) {
+  final oldPassCtrl = TextEditingController();
+  final newPassCtrl = TextEditingController();
+  bool isLoading = false;
+
+  showDialog(
+    context: context,
+    builder: (ctx) => StatefulBuilder(
+      builder: (dialogCtx, setState) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('Change Password', style: AppTextStyles.titleMedium),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: oldPassCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Current Password',
+                prefixIcon: Icon(Icons.lock_outline_rounded),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: newPassCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'New Password',
+                prefixIcon: Icon(Icons.key_rounded),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: isLoading ? null : () => Navigator.of(dialogCtx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: isLoading
+                ? null
+                : () async {
+                    final oldPass = oldPassCtrl.text.trim();
+                    final newPass = newPassCtrl.text.trim();
+                    if (oldPass.isEmpty || newPass.isEmpty) return;
+
+                    setState(() => isLoading = true);
+                    final repo = ref.read(authRepositoryProvider);
+                    final username = await TokenStorage.instance.getUsername() ?? 'user@slt.lk';
+                    final res = await repo.changePassword(
+                      username: username,
+                      oldPassword: oldPass,
+                      newPassword: newPass,
+                    );
+                    setState(() => isLoading = false);
+
+                    if (ctx.mounted) {
+                      Navigator.of(dialogCtx).pop();
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        SnackBar(
+                          content: Text(res.message ?? 'Password change processed'),
+                          backgroundColor: res.isSuccess ? AppColors.success : AppColors.error,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            child: isLoading
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Text('Save', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -56,6 +140,19 @@ class SettingsPage extends ConsumerWidget {
               ),
             ],
           ).animate().fadeIn(duration: 300.ms, delay: 100.ms),
+          const SizedBox(height: AppSpacing.lg),
+
+          _SettingsSection(
+            title: 'Security & Account',
+            children: [
+              _SettingsTile(
+                icon: Icons.lock_outline_rounded,
+                label: 'Change Password',
+                trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
+                onTap: () => _showChangePasswordDialog(context, ref),
+              ),
+            ],
+          ).animate().fadeIn(duration: 300.ms, delay: 150.ms),
           const SizedBox(height: AppSpacing.lg),
 
           _SettingsSection(
