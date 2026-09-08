@@ -95,6 +95,21 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage>
     }
   }
 
+  Future<void> _handleResendOtp() async {
+    _startTimer();
+    final repo = ref.read(authRepositoryProvider);
+    final mobile = widget.phoneOrEmail.isNotEmpty ? widget.phoneOrEmail : '0771234567';
+    final res = await repo.resendOtp(mobile: mobile);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(res.message ?? 'OTP resent successfully'),
+        backgroundColor: res.isSuccess ? AppColors.success : AppColors.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
@@ -258,7 +273,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage>
                   )
                 else
                   GestureDetector(
-                    onTap: _startTimer,
+                    onTap: _handleResendOtp,
                     child: Text(
                       'Resend',
                       style: AppTextStyles.bodySmall.copyWith(
