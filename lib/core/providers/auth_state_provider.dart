@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
+import '../storage/token_storage.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository();
@@ -166,6 +167,25 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true);
     await _authRepository.logout();
     state = const AuthState();
+  }
+
+  /// Endpoint 6: Change Account Password
+  Future<AuthResult> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    final username = await TokenStorage.instance.getUsername() ?? 'user@slt.lk';
+    final result = await _authRepository.changePassword(
+      username: username,
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    );
+    state = state.copyWith(
+      isLoading: false,
+      error: result.isSuccess ? null : result.message,
+    );
+    return result;
   }
 
   void clearError() {

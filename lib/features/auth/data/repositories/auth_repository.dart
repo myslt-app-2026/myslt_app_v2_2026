@@ -322,14 +322,25 @@ class AuthRepository {
         data: {
           'username': username,
           'oldPassword': oldPassword,
+          'currentPassword': oldPassword,
           'newPassword': newPassword,
         },
       );
 
       if (response.statusCode == 200 && response.data != null) {
         final resData = response.data;
-        if (resData['status'] == 'SUCCESS' || resData['success'] == true) {
-          return const AuthResult(isSuccess: true, message: 'Password changed successfully');
+        if (resData is Map) {
+          final isSuccess = resData['status'] == 'SUCCESS' ||
+              resData['success'] == true ||
+              resData['code'] == 'PASSWORD_CHANGED' ||
+              resData['message']?.toString().toLowerCase().contains('success') == true;
+
+          if (isSuccess) {
+            return AuthResult(
+              isSuccess: true,
+              message: resData['message']?.toString() ?? 'Password changed successfully',
+            );
+          }
         }
       }
 

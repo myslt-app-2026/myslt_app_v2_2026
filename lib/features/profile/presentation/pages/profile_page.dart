@@ -9,6 +9,7 @@ import '../../../../core/mock/mock_data.dart';
 import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../settings/presentation/pages/settings_page.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -120,9 +121,15 @@ class ProfilePage extends ConsumerWidget {
                     title: 'Account Actions',
                     children: [
                       _ActionTile(
+                        icon: Icons.lock_outline_rounded,
+                        label: 'Change Password',
+                        color: AppColors.primary,
+                        onTap: () => showChangePasswordDialog(context, ref),
+                      ),
+                      _ActionTile(
                         icon: Icons.device_hub_rounded,
                         label: 'Manage Connections',
-                        color: AppColors.primary,
+                        color: AppColors.teal,
                         onTap: () => context.push(AppRoutes.connections),
                       ),
                       _ActionTile(

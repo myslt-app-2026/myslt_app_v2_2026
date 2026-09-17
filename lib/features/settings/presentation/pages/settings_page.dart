@@ -10,10 +10,12 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/storage/token_storage.dart';
 import '../../providers/settings_provider.dart';
 
-void _showChangePasswordDialog(BuildContext context, WidgetRef ref) {
+void showChangePasswordDialog(BuildContext context, WidgetRef ref) {
   final oldPassCtrl = TextEditingController();
   final newPassCtrl = TextEditingController();
+  final confirmPassCtrl = TextEditingController();
   bool isLoading = false;
+  String? errorText;
 
   showDialog(
     context: context,
@@ -21,27 +23,54 @@ void _showChangePasswordDialog(BuildContext context, WidgetRef ref) {
       builder: (dialogCtx, setState) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text('Change Password', style: AppTextStyles.titleMedium),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: oldPassCtrl,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Current Password',
-                prefixIcon: Icon(Icons.lock_outline_rounded),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (errorText != null) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    errorText!,
+                    style: const TextStyle(color: AppColors.error, fontSize: 13),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              TextField(
+                controller: oldPassCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Current Password',
+                  prefixIcon: Icon(Icons.lock_outline_rounded),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: newPassCtrl,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'New Password',
-                prefixIcon: Icon(Icons.key_rounded),
+              const SizedBox(height: 12),
+              TextField(
+                controller: newPassCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'New Password',
+                  prefixIcon: Icon(Icons.key_rounded),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              TextField(
+                controller: confirmPassCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm New Password',
+                  prefixIcon: Icon(Icons.check_circle_outline_rounded),
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -54,27 +83,50 @@ void _showChangePasswordDialog(BuildContext context, WidgetRef ref) {
                 : () async {
                     final oldPass = oldPassCtrl.text.trim();
                     final newPass = newPassCtrl.text.trim();
-                    if (oldPass.isEmpty || newPass.isEmpty) return;
+                    final confirmPass = confirmPassCtrl.text.trim();
 
-                    setState(() => isLoading = true);
-                    final repo = ref.read(authRepositoryProvider);
-                    final username = await TokenStorage.instance.getUsername() ?? 'user@slt.lk';
-                    final res = await repo.changePassword(
-                      username: username,
+                    if (oldPass.isEmpty || newPass.isEmpty) {
+                      setState(() => errorText = 'Please enter all required fields');
+                      return;
+                    }
+
+                    if (newPass.length < 6) {
+                      setState(() => errorText = 'New password must be at least 6 characters');
+                      return;
+                    }
+
+                    if (newPass != confirmPass) {
+                      setState(() => errorText = 'New passwords do not match');
+                      return;
+                    }
+
+                    setState(() {
+                      isLoading = true;
+                      errorText = null;
+                    });
+
+                    final res = await ref.read(authNotifierProvider.notifier).changePassword(
                       oldPassword: oldPass,
                       newPassword: newPass,
                     );
+
                     setState(() => isLoading = false);
 
-                    if (ctx.mounted) {
-                      Navigator.of(dialogCtx).pop();
-                      ScaffoldMessenger.of(ctx).showSnackBar(
-                        SnackBar(
-                          content: Text(res.message ?? 'Password change processed'),
-                          backgroundColor: res.isSuccess ? AppColors.success : AppColors.error,
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
+                    if (res.isSuccess) {
+                      if (ctx.mounted) {
+                        Navigator.of(dialogCtx).pop();
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          SnackBar(
+                            content: Text(res.message ?? 'Password changed successfully'),
+                            backgroundColor: AppColors.success,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    } else {
+                      setState(() {
+                        errorText = res.message ?? 'Password change failed';
+                      });
                     }
                   },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
@@ -149,7 +201,7 @@ class SettingsPage extends ConsumerWidget {
                 icon: Icons.lock_outline_rounded,
                 label: 'Change Password',
                 trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
-                onTap: () => _showChangePasswordDialog(context, ref),
+                onTap: () => showChangePasswordDialog(context, ref),
               ),
             ],
           ).animate().fadeIn(duration: 300.ms, delay: 150.ms),
