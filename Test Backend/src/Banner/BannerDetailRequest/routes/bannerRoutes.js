@@ -5,5 +5,7 @@ const bannerController = require('../controllers/bannerController');
 
 // GET /tmf-api/communicationManagement/v4/communicationMessage/banner?username=randikaslt@gmail.com
 router.get('/communicationMessage/banner', bannerController.getBannerDetails);
+router.get('/banner', bannerController.getBannerDetails);
+router.get('/', bannerController.getBannerDetails);
 
 module.exports = router;

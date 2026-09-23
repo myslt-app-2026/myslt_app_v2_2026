@@ -10,12 +10,17 @@ import '../../../../core/providers/auth_state_provider.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_shimmer.dart';
+import '../../data/models/account_summary_model.dart';
+import '../../data/models/popup_banner_model.dart';
+import '../../data/models/promotion_model.dart';
+import '../../providers/home_provider.dart';
+import '../../../profile/providers/profile_provider.dart';
 import '../widgets/account_summary_card.dart';
 import '../widgets/promotion_carousel.dart';
 import '../widgets/quick_action_grid.dart';
 import '../widgets/service_section.dart';
 
-final _homeLoadingProvider = StateProvider<bool>((ref) => true);
+import '../../../usage/providers/usage_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -25,33 +30,152 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
+  bool _popupChecked = false;
+
   @override
   void initState() {
     super.initState();
-    _simulateLoading();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkPopupBanner());
   }
 
-  Future<void> _simulateLoading() async {
-    await Future.delayed(const Duration(milliseconds: 1800));
-    if (mounted) {
-      ref.read(_homeLoadingProvider.notifier).state = false;
-    }
+  Future<void> _checkPopupBanner() async {
+    if (_popupChecked || !mounted) return;
+    _popupChecked = true;
+    try {
+      final popups = await ref.read(popupBannersProvider.future);
+      if (!mounted || popups.isEmpty) return;
+      final active = popups.firstWhere((p) => p.isActive, orElse: () => popups.first);
+      if (active.isActive) {
+        _showPopupDialog(active);
+      }
+    } catch (_) {}
+  }
+
+  void _showPopupDialog(PopupBannerModel popup) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppSpacing.cardRadiusLg),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.md,
+                ),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: AppColors.cardGradient,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(51),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        popup.popupType,
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, color: Colors.white),
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      popup.title,
+                      style: AppTextStyles.titleMedium.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      popup.message,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Offer activated: ${popup.title}'),
+                            backgroundColor: AppColors.primary,
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 44),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppSpacing.buttonRadius),
+                        ),
+                      ),
+                      child: Text(popup.buttonTitle.isNotEmpty ? popup.buttonTitle : 'Explore Offer'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _handleRefresh() async {
-    ref.read(_homeLoadingProvider.notifier).state = true;
-    await Future.delayed(const Duration(milliseconds: 1500));
-    if (mounted) {
-      ref.read(_homeLoadingProvider.notifier).state = false;
-    }
+    ref.invalidate(homeProvider);
+    ref.invalidate(promotionsProvider);
+    ref.invalidate(popupBannersProvider);
+    ref.invalidate(profileProvider);
+    ref.invalidate(currentBroadbandUsageProvider);
+    ref.invalidate(dailyUsageProvider);
+    ref.invalidate(monthlyUsageProvider);
+    ref.invalidate(freeDataProvider);
+    ref.invalidate(bonusDataProvider);
+    ref.invalidate(myPackageProvider);
+    await ref.read(homeProvider.future);
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = ref.watch(_homeLoadingProvider);
-    final authState = ref.watch(authNotifierProvider);
+    final summaryAsync = ref.watch(homeProvider);
+    final promotionsAsync = ref.watch(promotionsProvider);
+    final profileAsync = ref.watch(profileProvider);
     final greeting = AppFormatters.greeting();
-    final userName = authState.user ?? 'Kasun';
+    // Prefer real name from GetUserInfo (Endpoint 7); fall back to auth state or placeholder
+    final userName = profileAsync.valueOrNull?.name.split(' ').first
+        ?? ref.read(authNotifierProvider).user
+        ?? 'Kasun';
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
@@ -70,17 +194,21 @@ class _HomePageState extends ConsumerState<HomePage> {
               backgroundColor: AppColors.primary,
               surfaceTintColor: Colors.transparent,
               flexibleSpace: FlexibleSpaceBar(
-                background: _buildHeaderBg(greeting, userName),
+                background: _buildHeaderBg(
+                  greeting,
+                  userName,
+                  summaryAsync.valueOrNull?.accountNumber ?? 'ACC-0094-7821',
+                ),
                 collapseMode: CollapseMode.pin,
               ),
               actions: [
                 IconButton(
-                  icon: Icon(Icons.notifications_outlined,
+                  icon: const Icon(Icons.notifications_outlined,
                       color: Colors.white),
                   onPressed: () => context.push(AppRoutes.notifications),
                 ),
                 IconButton(
-                  icon: Icon(Icons.person_outline_rounded,
+                  icon: const Icon(Icons.person_outline_rounded,
                       color: Colors.white),
                   onPressed: () => context.push(AppRoutes.profile),
                 ),
@@ -90,9 +218,19 @@ class _HomePageState extends ConsumerState<HomePage> {
 
             // ── Content ─────────────────────────────────────────────────
             SliverToBoxAdapter(
-              child: isLoading
-                  ? AppShimmer.dashboard()
-                  : _buildContent(context),
+              child: summaryAsync.when(
+                data: (summary) => _buildContent(
+                  context,
+                  summary,
+                  promotionsAsync.valueOrNull ?? MockData.promotions,
+                ),
+                loading: () => AppShimmer.dashboard(),
+                error: (_, __) => _buildContent(
+                  context,
+                  MockData.accountSummary,
+                  MockData.promotions,
+                ),
+              ),
             ),
           ],
         ),
@@ -100,7 +238,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _buildHeaderBg(String greeting, String userName) {
+  Widget _buildHeaderBg(String greeting, String userName, String accountNumber) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -161,7 +299,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      MockData.accountSummary.accountNumber,
+                      accountNumber,
                       style: AppTextStyles.labelMedium.copyWith(
                         color: Colors.white,
                       ),
@@ -176,10 +314,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _buildContent(BuildContext context) {
-    final summary = MockData.accountSummary;
-    final promotions = MockData.promotions;
-
+  Widget _buildContent(
+    BuildContext context,
+    AccountSummaryModel summary,
+    List<PromotionModel> promotions,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

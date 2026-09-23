@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../features/auth/domain/entities/user_entity.dart';
 import '../../../core/mock/mock_data.dart';
+import '../../../core/providers/auth_state_provider.dart';
+import '../../../features/auth/domain/entities/user_entity.dart';
 
 // ─── Profile Notifier ─────────────────────────────────────────────────────────
 
@@ -9,8 +10,8 @@ class ProfileNotifier extends AsyncNotifier<UserEntity> {
   Future<UserEntity> build() => _fetchProfile();
 
   Future<UserEntity> _fetchProfile() async {
-    await Future.delayed(const Duration(milliseconds: 800));
-    return MockData.currentUser;
+    final repo = ref.read(authRepositoryProvider);
+    return repo.getUserInfo();
   }
 
   Future<void> refresh() async {
@@ -22,14 +23,25 @@ class ProfileNotifier extends AsyncNotifier<UserEntity> {
     required String mobile,
     required String email,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 1000));
-    final current = state.valueOrNull;
-    if (current != null) {
-      state = AsyncData(current.copyWith(mobile: mobile, email: email));
-    }
-    return true;
+    final repo = ref.read(authRepositoryProvider);
+    final current = state.valueOrNull ?? MockData.currentUser;
+    
+    final nameParts = current.name.trim().split(' ');
+    final firstName = nameParts.first;
+    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+
+    final result = await repo.updateUserInfo(
+      userName: email,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+    );
+
+    state = AsyncData(current.copyWith(mobile: mobile, email: email));
+    return result.isSuccess;
   }
 }
 
 final profileProvider =
     AsyncNotifierProvider<ProfileNotifier, UserEntity>(ProfileNotifier.new);
+

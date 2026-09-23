@@ -10,26 +10,41 @@ import '../../../../core/utils/formatters.dart';
 import '../../../../core/widgets/app_shimmer.dart';
 import '../../data/models/bill_model.dart';
 
-class BillPage extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/bill_provider.dart';
+
+class BillPage extends ConsumerStatefulWidget {
   const BillPage({super.key});
 
   @override
-  State<BillPage> createState() => _BillPageState();
+  ConsumerState<BillPage> createState() => _BillPageState();
 }
 
-class _BillPageState extends State<BillPage> {
-  bool _isLoading = true;
+class _BillPageState extends ConsumerState<BillPage> {
+  bool _isDownloading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      if (mounted) setState(() => _isLoading = false);
-    });
+  Future<void> _handleDownloadPdf() async {
+    setState(() => _isDownloading = true);
+    final repo = ref.read(billRepositoryProvider);
+    final currentBill = ref.read(billProvider).valueOrNull ?? MockData.currentBill;
+    final res = await repo.downloadBillPdf(billId: currentBill.billId);
+    if (!mounted) return;
+    setState(() => _isDownloading = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(res['message'] ?? 'Downloading Monthly Bill PDF...'),
+        backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentBillAsync = ref.watch(billProvider);
+    final historyAsync = ref.watch(billHistoryProvider);
+
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       body: CustomScrollView(
@@ -43,33 +58,47 @@ class _BillPageState extends State<BillPage> {
             ),
             actions: [
               IconButton(
-                icon: Icon(Icons.download_outlined, color: Colors.white),
-                onPressed: () {},
+                icon: _isDownloading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.download_outlined, color: Colors.white),
+                onPressed: _isDownloading ? null : _handleDownloadPdf,
               ),
             ],
           ),
           SliverToBoxAdapter(
-            child: _isLoading
-                ? Padding(
-                    padding: const EdgeInsets.all(AppSpacing.pagePadding),
-                    child: Column(
-                      children: [
-                        AppShimmer.card(height: 220),
-                        const SizedBox(height: AppSpacing.lg),
-                        AppShimmer.listItem(count: 4),
-                      ],
-                    ),
-                  )
-                : _buildContent(context),
+            child: currentBillAsync.when(
+              data: (bill) => _buildContent(
+                context,
+                bill,
+                historyAsync.valueOrNull ?? MockData.billHistory,
+              ),
+              loading: () => Padding(
+                padding: const EdgeInsets.all(AppSpacing.pagePadding),
+                child: Column(
+                  children: [
+                    AppShimmer.card(height: 220),
+                    const SizedBox(height: AppSpacing.lg),
+                    AppShimmer.listItem(count: 4),
+                  ],
+                ),
+              ),
+              error: (_, __) => _buildContent(
+                context,
+                MockData.currentBill,
+                MockData.billHistory,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context) {
-    final bill = MockData.currentBill;
-    final history = MockData.billHistory;
+  Widget _buildContent(BuildContext context, BillModel bill, List<BillModel> history) {
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.pagePadding),
@@ -81,6 +110,13 @@ class _BillPageState extends State<BillPage> {
               .animate()
               .fadeIn(duration: 400.ms)
               .slideY(begin: 0.2, curve: Curves.easeOut),
+          const SizedBox(height: AppSpacing.md),
+
+          // SMS Bill Notification Status (Endpoint 20)
+          const _SmsNotificationCard()
+              .animate()
+              .fadeIn(duration: 350.ms, delay: 50.ms)
+              .slideY(begin: 0.1, curve: Curves.easeOut),
           const SizedBox(height: AppSpacing.xl),
 
           Text('Bill History', style: AppTextStyles.titleMedium)
@@ -285,3 +321,122 @@ class _BillHistoryTile extends StatelessWidget {
     );
   }
 }
+
+class _SmsNotificationCard extends ConsumerWidget {
+  const _SmsNotificationCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final smsAsync = ref.watch(smsServiceStatusProvider);
+
+    return smsAsync.when(
+      data: (sms) {
+        final isActive = sms.isActive;
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+            border: Border.all(color: AppColors.dividerLight, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(6),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? const Color(0xFFDCFCE7)
+                      : const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.sms_outlined,
+                  color: isActive
+                      ? const Color(0xFF16A34A)
+                      : const Color(0xFFD97706),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SMS Bill Notification',
+                      style: AppTextStyles.titleSmall.copyWith(fontSize: 14),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      sms.tpNo.isNotEmpty
+                          ? 'Alerts active for ${sms.tpNo}'
+                          : 'Bill alerts & payment reminders',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? const Color(0xFFDCFCE7)
+                      : const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isActive
+                        ? const Color(0xFF86EFAC)
+                        : const Color(0xFFE5E7EB),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: isActive
+                            ? const Color(0xFF16A34A)
+                            : const Color(0xFF9CA3AF),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      sms.smsServiceStatus,
+                      style: AppTextStyles.caption.copyWith(
+                        color: isActive
+                            ? const Color(0xFF15803D)
+                            : const Color(0xFF4B5563),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
