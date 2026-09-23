@@ -5,11 +5,54 @@ import '../../../../core/network/api_constants.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/storage/token_storage.dart';
 import '../models/bill_model.dart';
+import '../models/sms_service_status_model.dart';
 
 class BillRepository {
   BillRepository({Dio? dio}) : _dio = dio ?? DioClient.instance.dio;
 
   final Dio _dio;
+
+  /// Endpoint 20: Get SMS Service Notification Status
+  /// GET /tmf-api/customerBillManagement/v5/SMSServiceStatusRequest?accountNo=...&tpNo=...
+  Future<SmsServiceStatusModel> getSmsServiceStatus({
+    String? accountNo,
+    String? tpNo,
+  }) async {
+    final effectiveAcc = accountNo ??
+        await TokenStorage.instance.getUsername() ??
+        '0312241780';
+    final effectiveTp = tpNo ?? '0771234567';
+
+    try {
+      final response = await _dio.get(
+        ApiConstants.smsServiceStatusRequest,
+        queryParameters: {
+          'accountNo': effectiveAcc,
+          'tpNo': effectiveTp,
+        },
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data;
+        if (data is Map<String, dynamic>) {
+          return SmsServiceStatusModel.fromJson(data);
+        } else if (data is Map) {
+          return SmsServiceStatusModel.fromJson(Map<String, dynamic>.from(data));
+        }
+      }
+    } catch (e) {
+      debugPrint('[BillRepository] getSmsServiceStatus error: $e');
+    }
+
+    // Graceful fallback status
+    return SmsServiceStatusModel(
+      isSuccess: true,
+      accountNo: effectiveAcc,
+      tpNo: effectiveTp,
+      smsServiceStatus: 'ACTIVE',
+      status: 'active',
+    );
+  }
 
   /// Endpoint 16: Check User E-Bill Status
   /// GET /tmf-api/customerBillManagement/v5

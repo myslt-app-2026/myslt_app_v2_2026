@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/bill_model.dart';
+import '../data/models/sms_service_status_model.dart';
 import '../data/repositories/bill_repository.dart';
 
 // ─── Repository Provider ──────────────────────────────────────────────────────
@@ -60,4 +61,26 @@ class EBillStatusNotifier extends AsyncNotifier<Map<String, dynamic>> {
 final eBillStatusProvider =
     AsyncNotifierProvider<EBillStatusNotifier, Map<String, dynamic>>(
         EBillStatusNotifier.new);
+
+// ─── SMS Service Status (Endpoint 20) ─────────────────────────────────────────
+
+class SmsServiceStatusNotifier extends AsyncNotifier<SmsServiceStatusModel> {
+  @override
+  Future<SmsServiceStatusModel> build() async {
+    final repo = ref.read(billRepositoryProvider);
+    return repo.getSmsServiceStatus();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(billRepositoryProvider);
+      return repo.getSmsServiceStatus();
+    });
+  }
+}
+
+final smsServiceStatusProvider =
+    AsyncNotifierProvider<SmsServiceStatusNotifier, SmsServiceStatusModel>(
+        SmsServiceStatusNotifier.new);
 

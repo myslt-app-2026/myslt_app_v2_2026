@@ -110,6 +110,13 @@ class _BillPageState extends ConsumerState<BillPage> {
               .animate()
               .fadeIn(duration: 400.ms)
               .slideY(begin: 0.2, curve: Curves.easeOut),
+          const SizedBox(height: AppSpacing.md),
+
+          // SMS Bill Notification Status (Endpoint 20)
+          const _SmsNotificationCard()
+              .animate()
+              .fadeIn(duration: 350.ms, delay: 50.ms)
+              .slideY(begin: 0.1, curve: Curves.easeOut),
           const SizedBox(height: AppSpacing.xl),
 
           Text('Bill History', style: AppTextStyles.titleMedium)
@@ -314,3 +321,122 @@ class _BillHistoryTile extends StatelessWidget {
     );
   }
 }
+
+class _SmsNotificationCard extends ConsumerWidget {
+  const _SmsNotificationCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final smsAsync = ref.watch(smsServiceStatusProvider);
+
+    return smsAsync.when(
+      data: (sms) {
+        final isActive = sms.isActive;
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+            border: Border.all(color: AppColors.dividerLight, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(6),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? const Color(0xFFDCFCE7)
+                      : const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.sms_outlined,
+                  color: isActive
+                      ? const Color(0xFF16A34A)
+                      : const Color(0xFFD97706),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SMS Bill Notification',
+                      style: AppTextStyles.titleSmall.copyWith(fontSize: 14),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      sms.tpNo.isNotEmpty
+                          ? 'Alerts active for ${sms.tpNo}'
+                          : 'Bill alerts & payment reminders',
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? const Color(0xFFDCFCE7)
+                      : const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isActive
+                        ? const Color(0xFF86EFAC)
+                        : const Color(0xFFE5E7EB),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: isActive
+                            ? const Color(0xFF16A34A)
+                            : const Color(0xFF9CA3AF),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      sms.smsServiceStatus,
+                      style: AppTextStyles.caption.copyWith(
+                        color: isActive
+                            ? const Color(0xFF15803D)
+                            : const Color(0xFF4B5563),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
