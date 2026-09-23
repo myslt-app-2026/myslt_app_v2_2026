@@ -1,27 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/mock/mock_data.dart';
 import '../../data/models/notification_model.dart';
+import '../../providers/home_provider.dart';
 
-class NotificationsPage extends StatefulWidget {
+class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
 
   @override
-  State<NotificationsPage> createState() => _NotificationsPageState();
+  ConsumerState<NotificationsPage> createState() => _NotificationsPageState();
 }
 
-class _NotificationsPageState extends State<NotificationsPage> {
+class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   late List<NotificationModel> _notifs;
   String _selectedCategory = 'All';
+  bool _isSendingPush = false;
 
   @override
   void initState() {
     super.initState();
     _notifs = List.from(MockData.notifications);
+  }
+
+  Future<void> _handleSendPushNotification() async {
+    setState(() => _isSendingPush = true);
+    final repo = ref.read(bannerNotificationRepositoryProvider);
+    final res = await repo.postPushNotification(
+      accountNo: '0312241780',
+      notType: 'BILL_ALERT',
+      email: 'user@slt.lk',
+      mobile: '0771234567',
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _isSendingPush = false;
+      if (res.isSuccess) {
+        final newNotif = NotificationModel(
+          id: res.messageId ?? 'PUSH-${DateTime.now().millisecondsSinceEpoch}',
+          title: 'SMS & Push Alert Dispatched',
+          body: 'Your live account status and bill reminder have been synced with SLT network.',
+          timestamp: DateTime.now(),
+          type: NotificationType.bill,
+          isRead: false,
+        );
+        _notifs.insert(0, newNotif);
+      }
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(res.isSuccess
+            ? 'Push notification dispatched! (ID: ${res.messageId ?? 'Delivered'})'
+            : (res.errorMessage ?? 'Failed to send push notification')),
+        backgroundColor: res.isSuccess ? AppColors.success : AppColors.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _markAllRead() {
@@ -80,6 +120,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
+          IconButton(
+            tooltip: 'Send Push Notification',
+            icon: _isSendingPush
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.send_to_mobile_rounded, color: AppColors.primary),
+            onPressed: _isSendingPush ? null : _handleSendPushNotification,
+          ),
           if (_notifs.any((n) => !n.isRead))
             TextButton(
               onPressed: _markAllRead,

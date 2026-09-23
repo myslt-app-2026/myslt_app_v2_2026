@@ -51,4 +51,9 @@ class ApiConstants {
   static const String billDownload = '/tmf-api/customerBillManagement/v5/BillDownload';
   static const String billStatusRequest = '/tmf-api/customerBillManagement/v5/BillStatusRequest';
   static const String smsServiceStatusRequest = '/tmf-api/customerBillManagement/v5/SMSServiceStatusRequest';
+
+  // ── Banners & Notifications Endpoints ──
+  static const String promotionalBanners = '/tmf-api/communicationManagement/v4';
+  static const String popupBanners = '/api/notifications/popup';
+  static const String pushNotification = '/api/notifications/push';
 }
