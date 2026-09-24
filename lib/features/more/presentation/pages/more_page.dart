@@ -30,6 +30,7 @@ class MorePage extends StatelessWidget {
     _MoreItem(label: 'Profile', icon: Icons.person_rounded, color: Color(0xFF003087), route: AppRoutes.profile),
     _MoreItem(label: 'Connections', icon: Icons.device_hub_rounded, color: Color(0xFF0066CC), route: AppRoutes.connections),
     _MoreItem(label: 'Settings', icon: Icons.settings_rounded, color: Color(0xFF6B7280), route: AppRoutes.settings),
+    _MoreItem(label: 'Contact Us', icon: Icons.headset_mic_rounded, color: Color(0xFF0284C7), route: AppRoutes.contactUs),
   ];
 
   @override

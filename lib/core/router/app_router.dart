@@ -30,6 +30,7 @@ import '../../features/more/presentation/pages/happy_day_page.dart';
 import '../../features/more/presentation/pages/report_fault_page.dart';
 import '../../features/more/presentation/pages/idd_services_page.dart';
 import '../../features/more/presentation/pages/location_services_page.dart';
+import '../../features/more/presentation/pages/contact_us_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/settings/presentation/pages/language_page.dart';
 import '../widgets/main_shell.dart';
@@ -71,6 +72,7 @@ abstract final class AppRoutes {
   static const String reportFault = '/report-fault';
   static const String iddServices = '/idd-services';
   static const String locationServices = '/locations';
+  static const String contactUs = '/contact-us';
   static const String notifications = '/notifications';
   static const String promotionDetail = '/promotion/:id';
 }
@@ -318,6 +320,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _slidePage(
           state: state,
           child: const LocationServicesPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.contactUs,
+        pageBuilder: (context, state) => _slidePage(
+          state: state,
+          child: const ContactUsPage(),
         ),
       ),
       GoRoute(
