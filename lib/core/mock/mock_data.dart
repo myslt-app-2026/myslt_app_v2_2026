@@ -272,32 +272,34 @@ abstract final class MockData {
       ];
 
   // ─── Connections ──────────────────────────────────────────────────────────
-  static List<ConnectionModel> get connections => [
-        ConnectionModel(
-          id: 'conn_001',
-          accountNumber: 'ACC-0094-7821',
-          name: 'Home Fiber',
-          type: ConnectionType.fiber,
-          isActive: true,
-          planName: 'Fiber Max 100',
-        ),
-        ConnectionModel(
-          id: 'conn_002',
-          accountNumber: 'MOB-077-1234567',
-          name: 'Personal Mobile',
-          type: ConnectionType.mobile,
-          isActive: false,
-          planName: 'Mobitel Postpaid 10GB',
-        ),
-        ConnectionModel(
-          id: 'conn_003',
-          accountNumber: 'ACC-0094-3312',
-          name: 'Office Fiber',
-          type: ConnectionType.fiber,
-          isActive: false,
-          planName: 'Fiber Pro 200',
-        ),
-      ];
+  static final List<ConnectionModel> _connectionsList = [
+    ConnectionModel(
+      id: 'conn_001',
+      accountNumber: 'ACC-0094-7821',
+      name: 'Home Fiber',
+      type: ConnectionType.fiber,
+      isActive: true,
+      planName: 'Fiber Max 100',
+    ),
+    ConnectionModel(
+      id: 'conn_002',
+      accountNumber: 'MOB-077-1234567',
+      name: 'Personal Mobile',
+      type: ConnectionType.mobile,
+      isActive: false,
+      planName: 'Mobitel Postpaid 10GB',
+    ),
+    ConnectionModel(
+      id: 'conn_003',
+      accountNumber: 'ACC-0094-3312',
+      name: 'Office Fiber',
+      type: ConnectionType.fiber,
+      isActive: false,
+      planName: 'Fiber Pro 200',
+    ),
+  ];
+
+  static List<ConnectionModel> get connections => _connectionsList;
 
   // ─── PeoTV ────────────────────────────────────────────────────────────────
   static List<PeoTVPackageModel> get peoTVPackages => [
