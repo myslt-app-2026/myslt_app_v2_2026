@@ -49,8 +49,18 @@ class ApiConstants {
   // ── Bills & E-Bill Endpoints ──
   static const String eBillStatus = '/tmf-api/customerBillManagement/v5';
   static const String billDownload = '/tmf-api/customerBillManagement/v5/BillDownload';
+  static const String smartBillRegistration = '/tmf-api/customerBill/v4';
   static const String billStatusRequest = '/tmf-api/customerBillManagement/v5/BillStatusRequest';
   static const String smsServiceStatusRequest = '/tmf-api/customerBillManagement/v5/SMSServiceStatusRequest';
+
+  // ── VAS & Data Packages Endpoints ──
+  static const String vasCatalog = '/tmf-api/productCatalogManagement/v4';
+  static const String extraGbPackagesList = '/tmf-api/productOfferingQualification/v5';
+  static const String purchaseExtraGbOrAddon = '/tmf-api/productOrderingManagement/v4';
+  static const String redeemVoucher = '/tmf-api/usageManagement/v4/Vouchers';
+  static const String transferData = '/tmf-api/usageManagement/v4/TransferData';
+  static const String dataGiftEnrollment = '/tmf-api/dataGift/v1';
+  static const String advancedReportsSubscription = '/tmf-api/usageManagement/v4/AdvancedReports';
 
   // ── Banners & Notifications Endpoints ──
   static const String promotionalBanners = '/tmf-api/communicationManagement/v4';

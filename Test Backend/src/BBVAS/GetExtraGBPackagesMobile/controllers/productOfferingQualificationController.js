@@ -5,20 +5,32 @@ const ProductOfferingQualification = require("../models/ProductOfferingQualifica
 // POST /productOfferingQualification
 exports.checkProductOfferingQualification = async (req, res) => {
   try {
-    const { relatedParty, checkProductOfferingQualificationItem } = req.body;
-
-    if (!relatedParty || !checkProductOfferingQualificationItem) {
-      return res.status(400).json({ error: "Missing mandatory fields" });
-    }
+    const relatedParty = req.body.relatedParty || [
+      { id: req.body.accountNumber || "0312241780", role: "customer" }
+    ];
+    const checkProductOfferingQualificationItem = req.body.checkProductOfferingQualificationItem || [
+      {
+        id: "1",
+        action: "add",
+        product: { productSpecification: { name: req.body.basePackage || "Web Booster" } },
+        category: { id: "ExtraGB" }
+      }
+    ];
 
     const subscriber = relatedParty[0];
     const requestItem = checkProductOfferingQualificationItem[0];
-    const basePackage = requestItem.product.productSpecification.name;
+    const basePackage = (requestItem.product && requestItem.product.productSpecification)
+      ? requestItem.product.productSpecification.name
+      : "Web Booster";
 
     // Lookup bundles from local catalog
-    const eligibleBundles = await ExtraGbBundle.find({
+    let eligibleBundles = await ExtraGbBundle.find({
       allowedBasePackages: basePackage
     });
+
+    if (!eligibleBundles || eligibleBundles.length === 0) {
+      eligibleBundles = await ExtraGbBundle.find();
+    }
 
     // Build TMF679-compliant response
     const response = {

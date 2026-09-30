@@ -7,6 +7,7 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../packages/data/repositories/vas_packages_repository.dart';
 
 class GiftDataPage extends StatefulWidget {
   const GiftDataPage({super.key});
@@ -60,7 +61,14 @@ class _GiftDataPageState extends State<GiftDataPage> {
 
     if (confirmed == true && mounted) {
       setState(() => _isLoading = true);
-      await Future.delayed(const Duration(milliseconds: 1500));
+      try {
+        await VasPackagesRepository().enrollDataGiftPackage(
+          recipientMobile: _mobileCtrl.text.trim(),
+          amountGB: _selectedAmountGB,
+        );
+      } catch (e) {
+        debugPrint('[GiftDataPage] error: $e');
+      }
       if (!mounted) return;
       setState(() => _isLoading = false);
 

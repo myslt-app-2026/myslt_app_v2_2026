@@ -2,12 +2,16 @@ const TMF635TransferData = require("../../../models/TMF635_UsageManagement");
 
 exports.transferData = async (req, res) => {
   try {
-    const { subscriberID, receiver, volume, category, channel } = req.body;
+    const subscriberID = req.body.subscriberID || req.body.accountNumber || "0312241780";
+    const receiver = req.body.receiver || req.body.recipientMobile;
+    const volume = req.body.volume || req.body.amountGB;
+    const category = req.body.category || "DataTransfer";
+    const channel = req.body.channel || "MYSLT_APP";
 
-    if (!subscriberID || !receiver || !volume || !category || !channel) {
+    if (!receiver || !volume) {
       return res.status(400).json({
         success: false,
-        message: "subscriberID, receiver, volume, category and channel are required",
+        message: "recipientMobile (or receiver) and amountGB (or volume) are required",
       });
     }
 

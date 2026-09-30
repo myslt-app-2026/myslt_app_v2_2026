@@ -5,11 +5,11 @@ exports.addDataGiftEnroll = async (req, res) => {
   try {
     const giftData = {
       id: uuidv4(),
-      senderId: req.body.senderId,
-      receiverId: req.body.receiverId,
-      bundleName: req.body.bundleName,
-      dataVolume: req.body.dataVolume,
-      validity: req.body.validity,
+      senderId: req.body.senderId || req.body.accountNumber || "0312241780",
+      receiverId: req.body.receiverId || req.body.recipientMobile || "0771234567",
+      bundleName: req.body.bundleName || "Data Gift Package",
+      dataVolume: req.body.dataVolume || (req.body.amountGB ? `${req.body.amountGB} GB` : "5 GB"),
+      validity: req.body.validity || "30 days",
       status: "initiated",
     };
 

@@ -3,6 +3,11 @@ const router = express.Router();
 
 const getVASBundlePackagesController = require("../controllers/getVASBundlePackagesController");
 
+router.get(
+  "/",
+  getVASBundlePackagesController.getVASBundlePackages
+);
+
 // TMF-style endpoint
 // GET /tmf-api/productCatalogManagement/v4/productOffering/vasDataBundle/packages?basepackage=
 router.get(

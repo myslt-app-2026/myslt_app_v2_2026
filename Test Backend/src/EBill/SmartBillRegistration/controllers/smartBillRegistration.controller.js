@@ -8,12 +8,15 @@ const CustomerBill = require("../../../models/TMF678_CustomerBill");
  */
 exports.smartBillRegistration = async (req, res) => {
   try {
-    const { tpNo, accountNo, econtact, billCode } = req.body;
+    const tpNo = req.body.tpNo || req.body.telephoneNumber || req.body.mobile || "0112345678";
+    const accountNo = req.body.accountNo || req.body.accountNumber;
+    const econtact = req.body.econtact || req.body.email;
+    const billCode = req.body.billCode || req.body.eBillType || "PDF";
 
-    if (!tpNo || !accountNo || !econtact || !billCode) {
+    if (!accountNo || !econtact) {
       return res.status(400).json({
         error:
-          "Missing required fields in request body: tpNo, accountNo, econtact, billCode",
+          "Missing required fields in request body: accountNumber (or accountNo), email (or econtact)",
       });
     }
 

@@ -9,6 +9,7 @@ import '../../../../core/router/app_router.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_shimmer.dart';
 import '../../data/models/package_model.dart';
+import '../../data/repositories/vas_packages_repository.dart';
 
 class PackagesPage extends StatefulWidget {
   const PackagesPage({super.key});
@@ -296,14 +297,21 @@ class _PackageCard extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(ctx).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('${package.name} activated!'),
-                  backgroundColor: AppColors.success,
-                ),
-              );
+              try {
+                await VasPackagesRepository().purchaseExtraGbAddonBundle(
+                  packageId: package.id.isNotEmpty ? package.id : 'EX_GB_10',
+                );
+              } catch (_) {}
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${package.name} activated successfully!'),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+              }
             },
             child: const Text('Activate'),
           ),

@@ -294,6 +294,7 @@ app.use('/tmf-api/productOrdering/v4', dataGiftEnrollPrepaidInitRoutes);
 app.use('/tmf-api/productOrdering/v4', dataGiftEnrollPrepaidConfirmRoutes);
 app.use("/tmf-api/productOrdering/v4/productOrder", productOrderRoutes);
 app.use("/tmf-api/dataGift/v1", validateDataGiftRoutes);
+app.use("/tmf-api/dataGift/v1", require("./BBVAS/DataGiftEnroll/routes/dataGiftEnroll.routes"));
 app.use("/", vasRoutes);
 app.use("/tmf-api/ServiceActivationAndConfiguration/v4", serviceRoutes);
 app.use(

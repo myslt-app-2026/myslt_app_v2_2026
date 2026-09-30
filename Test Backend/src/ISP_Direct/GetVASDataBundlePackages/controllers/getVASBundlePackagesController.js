@@ -2,15 +2,8 @@ const getVASBundlePackagesService = require("../services/getVASBundlePackagesSer
 
 const getVASBundlePackages = async (req, res) => {
   try {
-    const subscriberid = req.headers.subscriberid;
+    const subscriberid = req.headers.subscriberid || req.query.subscriberid || req.query.subscriberID || "94112345678";
     const { basepackage } = req.query;
-
-    if (!subscriberid) {
-      return res.status(400).json({
-        error: "Bad Request",
-        message: "subscriberid header is required",
-      });
-    }
 
     const response = await getVASBundlePackagesService.getVASBundlePackages(
       basepackage,

@@ -26,20 +26,33 @@ exports.createProductOrder = async (req, res) => {
           ]
         : [],
 
-      productOrderItem: (req.body.orderItem || []).map(item => ({
-        id: item.id,
-        action: item.action,
-        state: item.state || "acknowledged",
+      productOrderItem: req.body.orderItem
+        ? req.body.orderItem.map(item => ({
+            id: item.id || "1",
+            action: item.action || "add",
+            state: item.state || "acknowledged",
+            productOffering: item.productOffering
+              ? {
+                  id: item.productOffering.id,
+                  name: item.productOffering.name
+                }
+              : undefined
+          }))
+        : req.body.packageId
+          ? [
+              {
+                id: "1",
+                action: "add",
+                state: "acknowledged",
+                productOffering: {
+                  id: req.body.packageId,
+                  name: req.body.packageId
+                }
+              }
+            ]
+          : [],
 
-        productOffering: item.productOffering
-          ? {
-              id: item.productOffering.id,
-              name: item.productOffering.name
-            }
-          : undefined
-      })),
-
-      relatedParty: req.body.relatedParty,
+      relatedParty: req.body.relatedParty || (req.body.accountNumber ? [{ id: req.body.accountNumber, role: "customer" }] : []),
       channel: req.body.channel
         ? Array.isArray(req.body.channel)
           ? req.body.channel
