@@ -102,7 +102,7 @@ class QuickActionGrid extends StatelessWidget {
         return _QuickActionTile(
           action: action,
           animationDelay: Duration(milliseconds: index * 60),
-          onTap: () => context.go(action.route),
+          onTap: () => context.push(action.route),
         );
       },
     );
