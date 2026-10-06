@@ -369,21 +369,7 @@ class _FaultHistoryPageState extends State<FaultHistoryPage> {
                 Text(date, style: AppTextStyles.caption),
               ],
             ),
-            const Divider(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  'Track Status',
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppColors.primary),
-              ],
-            ),
+
           ],
         ),
       ),
