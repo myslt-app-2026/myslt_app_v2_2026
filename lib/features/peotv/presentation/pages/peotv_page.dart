@@ -102,14 +102,14 @@ class PeoTVPage extends ConsumerWidget {
 }
 
 
-class _PeoTVPackageCard extends StatelessWidget {
+class _PeoTVPackageCard extends ConsumerWidget {
   const _PeoTVPackageCard({required this.package, required this.animDelay});
 
   final PeoTVPackageModel package;
   final Duration animDelay;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.lg),
       decoration: BoxDecoration(
@@ -222,12 +222,25 @@ class _PeoTVPackageCard extends StatelessWidget {
                           )
                         : AppButton(
                             label: 'Activate',
-                            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('${package.name} activated!'),
-                                backgroundColor: AppColors.success,
-                              ),
-                            ),
+                            onPressed: () async {
+                              final success = await ref
+                                  .read(peoTVProvider.notifier)
+                                  .activatePackage(package.id);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      success
+                                          ? '${package.name} activated successfully!'
+                                          : 'Failed to activate ${package.name}',
+                                    ),
+                                    backgroundColor: success
+                                        ? AppColors.success
+                                        : AppColors.error,
+                                  ),
+                                );
+                              }
+                            },
                             width: 120,
                             height: 40,
                           ),

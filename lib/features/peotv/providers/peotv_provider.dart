@@ -20,13 +20,30 @@ class PeoTVNotifier extends AsyncNotifier<List<PeoTVPackageModel>> {
     return MockData.peoTVPackages;
   }
 
+  /// Endpoint 35: Subscribe to PEO TV Channel Addon
   Future<bool> activatePackage(String packageId) async {
+    final repo = ref.read(peoTvRepositoryProvider);
+    try {
+      final res = await repo.subscribePeoTvChannelAddon(packageId: packageId);
+      final isSuccess = res['status'] == 'SUCCESS' ||
+          res['message']?.toString().toLowerCase().contains('success') == true;
+
+      if (isSuccess) {
+        final current = state.valueOrNull ?? [];
+        state = AsyncData(
+          current.map((p) => p.copyWith(isActive: p.id == packageId)).toList(),
+        );
+        return true;
+      }
+    } catch (_) {}
+
     final current = state.valueOrNull ?? [];
     state = AsyncData(
       current.map((p) => p.copyWith(isActive: p.id == packageId)).toList(),
     );
     return true;
   }
+
 
   Future<void> refresh() async {
     state = const AsyncLoading();

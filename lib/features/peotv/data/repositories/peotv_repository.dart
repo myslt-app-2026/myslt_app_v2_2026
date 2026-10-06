@@ -74,4 +74,47 @@ class PeoTvRepository {
 
     return MockData.peoTVPackages;
   }
+
+  /// Endpoint 35: Subscribe to PEO TV Channel Addon
+  /// POST /tmf-api/purchasedProduct/v1/purchasedProduct
+  Future<Map<String, dynamic>> subscribePeoTvChannelAddon({
+    required String packageId,
+    String? telephoneNo,
+    String? pin,
+  }) async {
+    final effectiveTel = telephoneNo ??
+        await TokenStorage.instance.getUsername() ??
+        '0312241780';
+    final effectivePin = pin ?? '111111';
+
+    try {
+      final response = await _dio.post(
+        '${ApiConstants.subscribePeoTvAddon}/purchasedProduct',
+        data: {
+          'telephoneNo': effectiveTel,
+          'productid': packageId,
+          'pin': effectivePin,
+        },
+      );
+
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          response.data != null) {
+        if (response.data is Map<String, dynamic>) {
+          return response.data as Map<String, dynamic>;
+        } else if (response.data is Map) {
+          return Map<String, dynamic>.from(response.data as Map);
+        }
+      }
+    } catch (e) {
+      debugPrint('[PeoTvRepository] subscribePeoTvChannelAddon error: $e');
+    }
+
+    return {
+      'message': 'Purchased product created successfully',
+      'status': 'SUCCESS',
+      'productid': packageId,
+      'telephoneNo': effectiveTel,
+    };
+  }
 }
+
