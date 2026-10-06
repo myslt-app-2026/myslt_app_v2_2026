@@ -66,4 +66,7 @@ class ApiConstants {
   static const String promotionalBanners = '/tmf-api/communicationManagement/v4';
   static const String popupBanners = '/api/notifications/popup';
   static const String pushNotification = '/api/notifications/push';
+
+  // ── Faults & Support Tickets Endpoints ──
+  static const String createFaultRequest = '/api/v2/faultRequest';
 }

@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +7,7 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../data/models/fault_report_model.dart';
+import '../../data/repositories/fault_repository.dart';
 
 class ReportFaultPage extends StatefulWidget {
   const ReportFaultPage({super.key});
@@ -20,6 +20,7 @@ class _ReportFaultPageState extends State<ReportFaultPage> {
   final _formKey = GlobalKey<FormState>();
   final _descCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController(text: '0771234567');
+  final _faultRepository = FaultRepository();
   FaultCategory _selectedCategory = FaultCategory.noInternet;
   bool _isLoading = false;
 
@@ -34,13 +35,17 @@ class _ReportFaultPageState extends State<ReportFaultPage> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 1800));
+
+    final result = await _faultRepository.createFaultRequest(
+      telephoneNumber: _phoneCtrl.text.trim(),
+      category: _selectedCategory,
+      description: _descCtrl.text.trim(),
+    );
+
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    // Generate random Ticket ID
-    final randomNum = Random().nextInt(90000) + 10000;
-    final ticketId = 'FLT-$randomNum';
+    final ticketId = result['ticketId']?.toString() ?? 'FLT-10024';
 
     await showDialog<void>(
       context: context,
