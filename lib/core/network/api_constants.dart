@@ -67,8 +67,15 @@ class ApiConstants {
   static const String popupBanners = '/api/notifications/popup';
   static const String pushNotification = '/api/notifications/push';
 
+  // ── PEO TV & Digital Services Endpoints ──
+  static const String peoTvSubscribedPackages = '/tmf-api/productInventory/v4';
+  static const String subscribePeoTvAddon = '/tmf-api/purchasedProduct/v1';
+  static const String peoTvGoAccessToken = '/api/Account/GetPeoTVGOAccessToken';
+  static const String verifyDigitalIdentity = '/tmf-api/digitalIdentity/v4';
+
   // ── Faults & Support Tickets Endpoints ──
   static const String createFaultRequest = '/api/v2/faultRequest';
   static const String trackTroubleTicket = '/tmf-api/troubleTicket/v5';
   static const String faultDashboard = '/api/Dashboard/GetFaultDashboard';
 }
+

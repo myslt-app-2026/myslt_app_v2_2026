@@ -53,4 +53,34 @@ class PeoTVPackageModel {
       tagColor: tagColor ?? this.tagColor,
     );
   }
+
+  factory PeoTVPackageModel.fromJson(Map<String, dynamic> json) {
+    final rawChannels = json['channels'] ?? json['productOffering']?['channels'];
+    List<String> parsedChannels = [];
+    if (rawChannels is List) {
+      parsedChannels = rawChannels.map((e) => e.toString()).toList();
+    } else {
+      parsedChannels = ['Sirasa TV', 'Rupavahini', 'ITN', 'Swarnavahini'];
+    }
+
+    final priceVal = (json['price'] is num)
+        ? (json['price'] as num).toDouble()
+        : (json['productPrice'] is num)
+            ? (json['productPrice'] as num).toDouble()
+            : 350.0;
+
+    return PeoTVPackageModel(
+      id: json['id']?.toString() ?? json['productSerialNumber']?.toString() ?? 'PEO-01',
+      name: json['name']?.toString() ?? json['productOfferingName']?.toString() ?? 'Basic Pack',
+      description: json['description']?.toString() ?? 'Subscribed PEO TV Package',
+      price: priceVal,
+      channelCount: (json['channelCount'] is num) ? (json['channelCount'] as num).toInt() : 52,
+      isActive: json['status']?.toString().toLowerCase() == 'active' || json['isActive'] == true || json['isSubscribed'] == true,
+      imageUrl: json['imageUrl']?.toString() ?? 'https://picsum.photos/800/400?random=1',
+      channels: parsedChannels,
+      tag: json['tag']?.toString() ?? (json['status']?.toString().toUpperCase() == 'ACTIVE' ? 'Active' : null),
+      tagColor: json['tagColor'] is int ? json['tagColor'] as int : 0xFF4CAF50,
+    );
+  }
 }
+
