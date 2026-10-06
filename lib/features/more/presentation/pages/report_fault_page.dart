@@ -96,6 +96,17 @@ class _ReportFaultPageState extends State<ReportFaultPage> {
           ],
         ),
         actions: [
+          OutlinedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context.push('/track-ticket?ticketId=$ticketId');
+            },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
+            ),
+            child: const Text('Track Ticket'),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
@@ -105,7 +116,7 @@ class _ReportFaultPageState extends State<ReportFaultPage> {
               Navigator.of(ctx).pop();
               context.pop();
             },
-            child: const Text('OK'),
+            child: const Text('Done'),
           ),
         ],
       ),
@@ -118,12 +129,19 @@ class _ReportFaultPageState extends State<ReportFaultPage> {
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded),
+          icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () => context.pop(),
         ),
         title: Text('Report Fault', style: AppTextStyles.titleMedium),
         backgroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history_rounded, color: AppColors.primary),
+            tooltip: 'Fault History Dashboard',
+            onPressed: () => context.push('/fault-history'),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.pagePadding),

@@ -69,4 +69,6 @@ class ApiConstants {
 
   // ── Faults & Support Tickets Endpoints ──
   static const String createFaultRequest = '/api/v2/faultRequest';
+  static const String trackTroubleTicket = '/tmf-api/troubleTicket/v5';
+  static const String faultDashboard = '/api/Dashboard/GetFaultDashboard';
 }
