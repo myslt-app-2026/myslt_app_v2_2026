@@ -38,7 +38,7 @@ class BannerNotificationRepository {
             final id = map['id']?.toString() ?? 'PROMO-${DateTime.now().millisecondsSinceEpoch}';
             final title = map['subject']?.toString() ?? map['title']?.toString() ?? 'SLT Promotion';
             final desc = map['description']?.toString() ?? map['content']?.toString() ?? '';
-            String imgUrl = 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80';
+            String imgUrl = 'assets/images/promo_data.jpg';
             if (map['attachment'] is List && (map['attachment'] as List).isNotEmpty) {
               final att = (map['attachment'] as List).first;
               if (att is Map && att['url'] != null) {

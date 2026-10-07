@@ -98,20 +98,24 @@ class _PromoCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Background image
-            Image.network(
-              promo.imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.primary, AppColors.accent],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-              ),
-            ),
+            // Background image (local asset or network URL)
+            Builder(builder: (_) {
+              Widget fallback(BuildContext _, Object __, StackTrace? ___) =>
+                  Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primary, AppColors.accent],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                  );
+              return promo.imageUrl.startsWith('assets/')
+                  ? Image.asset(promo.imageUrl,
+                      fit: BoxFit.cover, errorBuilder: fallback)
+                  : Image.network(promo.imageUrl,
+                      fit: BoxFit.cover, errorBuilder: fallback);
+            }),
 
             // Gradient overlay
             Container(

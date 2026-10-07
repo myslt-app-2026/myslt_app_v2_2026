@@ -50,17 +50,21 @@ class PromotionDetailPage extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    promo.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [AppColors.primary, AppColors.accent],
-                        ),
-                      ),
-                    ),
-                  ),
+                  Builder(builder: (_) {
+                    Widget fallback(BuildContext _, Object __, StackTrace? ___) =>
+                        Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [AppColors.primary, AppColors.accent],
+                            ),
+                          ),
+                        );
+                    return promo.imageUrl.startsWith('assets/')
+                        ? Image.asset(promo.imageUrl,
+                            fit: BoxFit.cover, errorBuilder: fallback)
+                        : Image.network(promo.imageUrl,
+                            fit: BoxFit.cover, errorBuilder: fallback);
+                  }),
                   // Bottom shadow overlay
                   Container(
                     decoration: BoxDecoration(
