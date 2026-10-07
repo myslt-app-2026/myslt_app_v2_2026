@@ -46,31 +46,34 @@ class PeoTvRepository {
       } catch (_) {}
 
       // 2. Try general endpoint: GET /tmf-api/productInventory/v4
-      final response = await _dio.get(
-        ApiConstants.peoTvSubscribedPackages,
-        queryParameters: {'accountNumber': acc},
-      );
+      try {
+        final response = await _dio.get(
+          ApiConstants.peoTvSubscribedPackages,
+          queryParameters: {'accountNumber': acc},
+        );
 
-      if (response.statusCode == 200 && response.data != null) {
-        final data = response.data;
-        final rawList = data is List
-            ? data
-            : (data is Map && data.containsKey('data')
-                ? data['data']
-                : (data is Map && data.containsKey('product')
-                    ? data['product']
-                    : null));
+        if (response.statusCode == 200 && response.data != null) {
+          final data = response.data;
+          final rawList = data is List
+              ? data
+              : (data is Map && data.containsKey('data')
+                  ? data['data']
+                  : (data is Map && data.containsKey('product')
+                      ? data['product']
+                      : null));
 
-        if (rawList is List && rawList.isNotEmpty) {
-          return rawList
-              .whereType<Map<String, dynamic>>()
-              .map((item) => PeoTVPackageModel.fromJson(item))
-              .toList();
+          if (rawList is List && rawList.isNotEmpty) {
+            return rawList
+                .whereType<Map<String, dynamic>>()
+                .map((item) => PeoTVPackageModel.fromJson(item))
+                .toList();
+          }
         }
-      }
+      } catch (_) {}
     } catch (e) {
       debugPrint('[PeoTvRepository] getSubscribedPeoTvPackages error: $e');
     }
+
 
     return MockData.peoTVPackages;
   }
@@ -150,7 +153,6 @@ class PeoTvRepository {
       }
     } catch (e) {
       debugPrint('[PeoTvRepository] getPeoTvGoAccessToken error: $e');
-      rethrow;
     }
 
     return {
@@ -165,5 +167,6 @@ class PeoTvRepository {
     };
   }
 }
+
 
 
