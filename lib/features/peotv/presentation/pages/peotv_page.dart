@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_shimmer.dart';
 import '../../data/models/peotv_package_model.dart';
 import '../../providers/peotv_provider.dart';
+import '../widgets/peotv_go_dialog.dart';
 
 
 class PeoTVPage extends ConsumerWidget {
@@ -66,6 +67,70 @@ class PeoTVPage extends ConsumerWidget {
                 ),
               ),
             ),
+            // PeoTV GO Streaming Access Token Action Banner
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.pagePadding, AppSpacing.pagePadding, AppSpacing.pagePadding, 0),
+                child: Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4C1D95), Color(0xFF7C3AED)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(AppSpacing.cardRadiusLg),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF7C3AED).withAlpha(60),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(51),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.play_circle_fill_rounded, color: Colors.white, size: 32),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'PeoTV GO Web Streaming',
+                              style: AppTextStyles.titleMedium.copyWith(color: Colors.white),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Stream 200+ channels on any browser',
+                              style: AppTextStyles.bodySmall.copyWith(color: Colors.white70),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF7C3AED),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        ),
+                        onPressed: () => launchPeoTvGoTokenFlow(context, ref),
+                        child: const Text('Stream Now', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             peoTvAsync.isLoading
                 ? SliverToBoxAdapter(
                     child: Padding(
@@ -100,6 +165,7 @@ class PeoTVPage extends ConsumerWidget {
     );
   }
 }
+
 
 
 class _PeoTVPackageCard extends ConsumerWidget {

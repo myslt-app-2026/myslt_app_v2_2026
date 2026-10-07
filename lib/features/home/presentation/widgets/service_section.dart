@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/glass_card.dart';
+import '../../../peotv/presentation/widgets/peotv_go_dialog.dart';
 
-class ServiceSection extends StatelessWidget {
+class ServiceSection extends ConsumerWidget {
   const ServiceSection({super.key});
 
   static const _services = [
@@ -17,7 +19,7 @@ class ServiceSection extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -51,14 +53,14 @@ class ServiceSection extends StatelessWidget {
           mainAxisSpacing: AppSpacing.md,
           crossAxisSpacing: AppSpacing.md,
           childAspectRatio: 1.6,
-          children: const [
-            _ServiceCard(
+          children: [
+            const _ServiceCard(
               title: 'Fiber Broadband',
               subtitle: 'Up to 200 Mbps',
               icon: Icons.router_rounded,
               color: AppColors.primary,
             ),
-            _ServiceCard(
+            const _ServiceCard(
               title: 'Mobitel 4G',
               subtitle: 'Nationwide coverage',
               icon: Icons.signal_cellular_alt_rounded,
@@ -68,13 +70,14 @@ class ServiceSection extends StatelessWidget {
               title: 'PeoTV GO',
               subtitle: '200+ channels',
               icon: Icons.play_circle_rounded,
-              color: Color(0xFF7C3AED),
+              color: const Color(0xFF7C3AED),
+              onTap: () => launchPeoTvGoTokenFlow(context, ref),
             ),
-            _ServiceCard(
+            const _ServiceCard(
               title: 'Digital Life',
               subtitle: 'Smart services',
               icon: Icons.devices_rounded,
-              color: Color(0xFFD97706),
+              color: const Color(0xFFD97706),
             ),
           ],
         ),
@@ -140,18 +143,20 @@ class _ServiceCard extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     required this.color,
+    this.onTap,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
   final Color color;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.md),
-      onTap: () {},
+      onTap: onTap ?? () {},
       child: Row(
         children: [
           Container(
@@ -189,3 +194,4 @@ class _ServiceCard extends StatelessWidget {
     );
   }
 }
+

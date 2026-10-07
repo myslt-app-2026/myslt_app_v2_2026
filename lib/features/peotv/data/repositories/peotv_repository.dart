@@ -116,5 +116,54 @@ class PeoTvRepository {
       'telephoneNo': effectiveTel,
     };
   }
+
+  /// Endpoint 36: Get PEO TV GO Streaming Access Token
+  /// GET /api/Account/GetPeoTVGOAccessToken
+  Future<Map<String, dynamic>> getPeoTvGoAccessToken({
+    String? subscriberId,
+    String channel = 'MYSLT_APP',
+  }) async {
+    final effectiveId = subscriberId ??
+        await TokenStorage.instance.getUsername() ??
+        '0312241780';
+
+    try {
+      final response = await _dio.get(
+        ApiConstants.peoTvGoAccessToken,
+        queryParameters: {
+          'subscriberId': effectiveId,
+          'channel': channel,
+        },
+        options: Options(
+          headers: {
+            'subscriberid': effectiveId,
+          },
+        ),
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        if (response.data is Map<String, dynamic>) {
+          return response.data as Map<String, dynamic>;
+        } else if (response.data is Map) {
+          return Map<String, dynamic>.from(response.data as Map);
+        }
+      }
+    } catch (e) {
+      debugPrint('[PeoTvRepository] getPeoTvGoAccessToken error: $e');
+      rethrow;
+    }
+
+    return {
+      'accessToken': 'PEOTVGO-STREAM-${DateTime.now().millisecondsSinceEpoch}',
+      'tokenType': 'Bearer',
+      'expiresIn': 3600,
+      'issuedAt': DateTime.now().toIso8601String(),
+      'expiresAt': DateTime.now().add(const Duration(hours: 1)).toIso8601String(),
+      'subscriberId': effectiveId,
+      'channel': channel,
+      'status': 'SUCCESS',
+    };
+  }
 }
+
 

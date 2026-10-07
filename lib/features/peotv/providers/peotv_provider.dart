@@ -45,6 +45,12 @@ class PeoTVNotifier extends AsyncNotifier<List<PeoTVPackageModel>> {
   }
 
 
+  /// Endpoint 36: Get PEO TV GO Streaming Access Token
+  Future<Map<String, dynamic>> getPeoTvGoAccessToken({String? subscriberId}) async {
+    final repo = ref.read(peoTvRepositoryProvider);
+    return await repo.getPeoTvGoAccessToken(subscriberId: subscriberId);
+  }
+
   Future<void> refresh() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(build);
@@ -54,4 +60,5 @@ class PeoTVNotifier extends AsyncNotifier<List<PeoTVPackageModel>> {
 final peoTVProvider =
     AsyncNotifierProvider<PeoTVNotifier, List<PeoTVPackageModel>>(
         PeoTVNotifier.new);
+
 
