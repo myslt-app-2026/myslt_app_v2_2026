@@ -101,13 +101,13 @@ class _AppButtonState extends State<AppButton>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius),
         gradient: _isInteractable ? _gradient : null,
-        color: _isInteractable ? null : _disabledColor,
+        color: _isInteractable ? _backgroundColor : _disabledColor,
         border: _border,
         boxShadow: _isInteractable && widget.variant == AppButtonVariant.primary
             ? [
                 BoxShadow(
-                  color: AppColors.primary.withAlpha(51),
-                  blurRadius: 16,
+                  color: AppColors.primary.withAlpha(70),
+                  blurRadius: 18,
                   offset: const Offset(0, 6),
                 ),
               ]
@@ -158,7 +158,7 @@ class _AppButtonState extends State<AppButton>
     switch (widget.variant) {
       case AppButtonVariant.primary:
         return const LinearGradient(
-          colors: [AppColors.primary, AppColors.accent],
+          colors: AppColors.buttonGradient,
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         );
@@ -168,6 +168,15 @@ class _AppButtonState extends State<AppButton>
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         );
+      default:
+        return null;
+    }
+  }
+
+  Color? get _backgroundColor {
+    switch (widget.variant) {
+      case AppButtonVariant.secondary:
+        return AppColors.softBlueTint;
       default:
         return null;
     }
