@@ -188,31 +188,50 @@ class _HomePageState extends ConsumerState<HomePage> {
           slivers: [
             // ── App Bar ─────────────────────────────────────────────────
             SliverAppBar(
-              expandedHeight: 160,
+              expandedHeight: 145,
               floating: false,
               pinned: true,
-              backgroundColor: AppColors.primary,
+              backgroundColor: AppColors.primaryDark,
               surfaceTintColor: Colors.transparent,
               flexibleSpace: FlexibleSpaceBar(
                 background: _buildHeaderBg(
                   greeting,
                   userName,
-                  summaryAsync.valueOrNull?.accountNumber ?? 'ACC-0094-7821',
+                  summaryAsync.valueOrNull?.accountNumber ?? '011XXXXXXX',
                 ),
                 collapseMode: CollapseMode.pin,
               ),
               actions: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_outlined,
-                      color: Colors.white),
-                  onPressed: () => context.push(AppRoutes.notifications),
+                Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(35),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.notifications_none_rounded,
+                        color: Colors.white, size: 20),
+                    onPressed: () => context.push(AppRoutes.notifications),
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.person_outline_rounded,
-                      color: Colors.white),
-                  onPressed: () => context.push(AppRoutes.profile),
+                Container(
+                  margin: const EdgeInsets.only(right: 14),
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withAlpha(35),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.grid_view_rounded,
+                        color: Colors.white, size: 20),
+                    onPressed: () => context.push(AppRoutes.more),
+                  ),
                 ),
-                const SizedBox(width: 4),
               ],
             ),
 
@@ -250,17 +269,14 @@ class _HomePageState extends ConsumerState<HomePage> {
       child: Stack(
         children: [
           Positioned(
-            top: -20,
-            right: -20,
+            top: -30,
+            right: -30,
             child: Container(
-              width: 150,
-              height: 150,
+              width: 160,
+              height: 160,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white.withAlpha(20),
-                  width: 2,
-                ),
+                color: Colors.white.withAlpha(15),
               ),
             ),
           ),
@@ -268,49 +284,103 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
                 AppSpacing.pagePadding,
-                AppSpacing.md,
+                AppSpacing.sm,
                 AppSpacing.pagePadding,
-                AppSpacing.lg,
+                AppSpacing.sm,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '$greeting, 👋',
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: Colors.white.withAlpha(204),
-                    ),
-                  ),
-                  Text(
-                    userName,
-                    style: AppTextStyles.headlineLarge.copyWith(
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.xs,
+                      horizontal: 14,
+                      vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(38),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      accountNumber,
-                      style: AppTextStyles.labelMedium.copyWith(
-                        color: Colors.white,
+                      color: Colors.white.withAlpha(40),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: Colors.white.withAlpha(50),
+                        width: 1,
                       ),
                     ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF00E676),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Color(0xFF00E676),
+                                blurRadius: 6,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          accountNumber,
+                          style: AppTextStyles.labelLarge.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ],
+                    ),
                   ),
+                  const Spacer(),
+                  _buildServiceSubNav(),
+                  const SizedBox(height: 2),
                 ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildServiceSubNav() {
+    final items = [
+      (Icons.wifi_rounded, 'Internet'),
+      (Icons.tv_rounded, 'PEO TV'),
+      (Icons.phone_rounded, 'Voice'),
+      (Icons.phone_android_rounded, 'Mobile'),
+      (Icons.local_offer_rounded, 'Promo'),
+    ];
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: items.map((item) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(item.$1, color: Colors.white.withAlpha(220), size: 14),
+            const SizedBox(width: 4),
+            Text(
+              item.$2,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        );
+      }).toList(),
     );
   }
 
