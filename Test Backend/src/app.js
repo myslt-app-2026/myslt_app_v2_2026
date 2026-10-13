@@ -568,6 +568,13 @@ app.use("/tmf-api/customerBillManagement/v5/GetDraftDataV2", GetDraftDataV2Route
 app.use("/tmf-api/UploadMultipartSingle", uploadMultipartSinglev2) // TMF663
 app.use("/tmf-api/UploadSingle", uploadSingle) // TMF663
 
+// Endpoint 39 thiyenne meka athule wenna puluwan
+app.use('/tmf-api/serviceReservation/v4', locationCheckRoutes);
+app.use('/tmf-api/serviceReservation/v4', getFacilityCheckRoutes);   // GetFacilityCheckV2
+
+// Endpoint 38 thiyenne meka athule wenna puluwan
+app.use("/tmf-api/productCatalogManagement/v4", productOfferingRoutes);   // GetBBPackageInterim
+
 app.use("/tmf-api/GenerateFTTHSecreatCode", generateFTTHSecreatCode)// tmf 622
 // Health check
 app.get('/', (req, res) => {

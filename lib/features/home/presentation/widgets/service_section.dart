@@ -3,6 +3,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/glass_card.dart';
+import '../../../packages/presentation/pages/fiber_page.dart';
 
 class ServiceSection extends StatelessWidget {
   const ServiceSection({super.key});
@@ -51,26 +52,31 @@ class ServiceSection extends StatelessWidget {
           mainAxisSpacing: AppSpacing.md,
           crossAxisSpacing: AppSpacing.md,
           childAspectRatio: 1.6,
-          children: const [
+          children: [
             _ServiceCard(
               title: 'Fiber Broadband',
               subtitle: 'Up to 200 Mbps',
               icon: Icons.router_rounded,
               color: AppColors.primary,
+              // Endpoint 39 + 38 wada karana FiberPage eka open karanawa
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FiberPage()),
+              ),
             ),
-            _ServiceCard(
+            const _ServiceCard(
               title: 'Mobitel 4G',
               subtitle: 'Nationwide coverage',
               icon: Icons.signal_cellular_alt_rounded,
               color: AppColors.teal,
             ),
-            _ServiceCard(
+            const _ServiceCard(
               title: 'PeoTV GO',
               subtitle: '200+ channels',
               icon: Icons.play_circle_rounded,
               color: Color(0xFF7C3AED),
             ),
-            _ServiceCard(
+            const _ServiceCard(
               title: 'Digital Life',
               subtitle: 'Smart services',
               icon: Icons.devices_rounded,
@@ -140,18 +146,20 @@ class _ServiceCard extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     required this.color,
+    this.onTap,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
   final Color color;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.md),
-      onTap: () {},
+      onTap: onTap ?? () {},
       child: Row(
         children: [
           Container(

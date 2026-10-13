@@ -23,6 +23,9 @@ mongoose
 function startServer(port) {
   const server = app.listen(port);
 
+  app.use('/tmf-api/customerBill/v4', require('./src/EBill/PostRegisterSmartEBill/routes/registerSmartEBillRoutes'));
+  app.use('/tmf-api/purchasedProduct/v1', require('./src/PEOVAS/POSTSubscribeChannel/routes/subscribeChannelRoutes'));
+
   server.on("listening", () => {
     const address = server.address();
     if (address && typeof address === "object") {
@@ -39,4 +42,6 @@ function startServer(port) {
       console.error("❌ Server error:", err);
     }
   });
+
+  
 }

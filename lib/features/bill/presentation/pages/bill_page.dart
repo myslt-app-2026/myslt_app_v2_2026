@@ -22,6 +22,7 @@ class BillPage extends ConsumerStatefulWidget {
 
 class _BillPageState extends ConsumerState<BillPage> {
   bool _isDownloading = false;
+  bool _isRegisteringEBill = false;
 
   Future<void> _handleDownloadPdf() async {
     setState(() => _isDownloading = true);
@@ -35,6 +36,27 @@ class _BillPageState extends ConsumerState<BillPage> {
       SnackBar(
         content: Text(res['message'] ?? 'Downloading Monthly Bill PDF...'),
         backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _handleRegisterSmartEBill() async {
+    setState(() => _isRegisteringEBill = true);
+    final repo = ref.read(billRepositoryProvider);
+    final result = await repo.registerSmartEBill(
+      email: 'wvadkchamara@gmail.com',
+    );
+    if (!mounted) return;
+    setState(() => _isRegisteringEBill = false);
+
+    final success = result['success'] != false;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success
+            ? 'Smart E-Bill registered!'
+            : (result['message']?.toString() ?? 'Failed to register Smart E-Bill')),
+        backgroundColor: success ? AppColors.primary : Colors.red,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -116,6 +138,16 @@ class _BillPageState extends ConsumerState<BillPage> {
           const _SmsNotificationCard()
               .animate()
               .fadeIn(duration: 350.ms, delay: 50.ms)
+              .slideY(begin: 0.1, curve: Curves.easeOut),
+          const SizedBox(height: AppSpacing.md),
+
+          // Smart E-Bill Registration
+          _SmartEBillCard(
+            isLoading: _isRegisteringEBill,
+            onRegister: _handleRegisterSmartEBill,
+          )
+              .animate()
+              .fadeIn(duration: 350.ms, delay: 80.ms)
               .slideY(begin: 0.1, curve: Curves.easeOut),
           const SizedBox(height: AppSpacing.xl),
 
@@ -440,3 +472,82 @@ class _SmsNotificationCard extends ConsumerWidget {
   }
 }
 
+class _SmartEBillCard extends StatelessWidget {
+  const _SmartEBillCard({
+    required this.onRegister,
+    required this.isLoading,
+  });
+
+  final VoidCallback onRegister;
+  final bool isLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: isLoading ? null : onRegister,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.md,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+          border: Border.all(color: AppColors.dividerLight, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(6),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE0EEFF),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.email_outlined,
+                color: Color(0xFF0066CC),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Smart E-Bill',
+                    style: AppTextStyles.titleSmall.copyWith(fontSize: 14),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Tap to register for email billing',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isLoading)
+              const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF)),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -62,6 +62,14 @@ final eBillStatusProvider =
     AsyncNotifierProvider<EBillStatusNotifier, Map<String, dynamic>>(
         EBillStatusNotifier.new);
 
+// ─── Register Smart E-Bill (one-time action, not a stream) ──────────────────
+
+final registerSmartEBillProvider =
+    FutureProvider.family<Map<String, dynamic>, String>((ref, email) async {
+  final repo = ref.read(billRepositoryProvider);
+  return repo.registerSmartEBill(email: email);
+});
+
 // ─── SMS Service Status (Endpoint 20) ─────────────────────────────────────────
 
 class SmsServiceStatusNotifier extends AsyncNotifier<SmsServiceStatusModel> {

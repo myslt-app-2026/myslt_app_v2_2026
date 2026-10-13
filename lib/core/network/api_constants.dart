@@ -61,6 +61,8 @@ class ApiConstants {
   static const String transferData = '/tmf-api/usageManagement/v4/TransferData';
   static const String dataGiftEnrollment = '/tmf-api/dataGift/v1';
   static const String advancedReportsSubscription = '/tmf-api/usageManagement/v4/AdvancedReports';
+  static const String fiberPackageOfferings = '/tmf-api/productCatalogManagement/v4/YYYY';
+  static const String fiberCoverageCheck   = '/tmf-api/serviceReservation/v4/XXXX';
 
   // ── Banners & Notifications Endpoints ──
   static const String promotionalBanners = '/tmf-api/communicationManagement/v4';

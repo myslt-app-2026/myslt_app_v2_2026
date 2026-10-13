@@ -81,6 +81,37 @@ class BillRepository {
     };
   }
 
+    /// Smart E-Bill Registration
+  /// POST /tmf-api/customerBill/v4
+  Future<Map<String, dynamic>> registerSmartEBill({
+    String? accountNo,
+    required String email,
+    String billFormat = 'PDF',
+  }) async {
+    final acc = accountNo ?? await TokenStorage.instance.getUsername() ?? '0312241780';
+
+    try {
+      final response = await _dio.post(
+        ApiConstants.smartBillRegistration,
+        data: {
+          'accountNo': acc,
+          'email': email,
+          'billFormat': billFormat,
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (response.data is Map<String, dynamic>) {
+          return response.data as Map<String, dynamic>;
+        }
+      }
+    } catch (e) {
+      debugPrint('[BillRepository] registerSmartEBill error: $e');
+    }
+
+    return {'success': false, 'message': 'Failed to register Smart E-Bill'};
+  }
+
   /// Endpoint 17: Download Monthly PDF Bill
   /// GET /tmf-api/customerBillManagement/v5/BillDownload
   Future<Map<String, dynamic>> downloadBillPdf({String? billId}) async {

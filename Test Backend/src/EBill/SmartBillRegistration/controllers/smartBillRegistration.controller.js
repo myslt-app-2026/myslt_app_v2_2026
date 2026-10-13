@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
-const CustomerBill = require("../../../models/TMF678_CustomerBill");
+const { TMF678_CustomerBill: CustomerBill } = require("../../../models/TMF678_CustomerBill");
 
 /**
  * POST /ebill/SmartBillRegistration
