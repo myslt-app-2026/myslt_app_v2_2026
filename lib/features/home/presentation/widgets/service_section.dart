@@ -4,6 +4,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/glass_card.dart';
+import '../../../peotv/presentation/widgets/peotv_go_dialog.dart';
+import '../../../packages/presentation/pages/fiber_page.dart';
 
 class ServiceSection extends ConsumerWidget {
   const ServiceSection({super.key});
@@ -52,7 +54,7 @@ class ServiceSection extends ConsumerWidget {
           mainAxisSpacing: AppSpacing.md,
           crossAxisSpacing: AppSpacing.md,
           childAspectRatio: 1.6,
-          children: const [
+          children: [
             _ServiceCard(
               title: 'Fiber Broadband',
               subtitle: 'Up to 200 Mbps',
@@ -70,7 +72,7 @@ class ServiceSection extends ConsumerWidget {
               icon: Icons.signal_cellular_alt_rounded,
               color: AppColors.teal,
             ),
-            const _ServiceCard(
+            _ServiceCard(
               title: 'PeoTV GO',
               subtitle: '200+ channels',
               icon: Icons.play_circle_rounded,
@@ -81,7 +83,7 @@ class ServiceSection extends ConsumerWidget {
               title: 'Digital Life',
               subtitle: 'Smart services',
               icon: Icons.devices_rounded,
-              color: const Color(0xFFD97706),
+              color: Color(0xFFD97706),
             ),
           ],
         ),
