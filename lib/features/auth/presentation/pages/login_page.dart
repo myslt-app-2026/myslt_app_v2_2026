@@ -77,38 +77,48 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // Modern Light Grey-Blue
-      body: Stack(
-        children: [
-          // ── Ambient Background Glows (Pastel Light Theme) ──
-          Positioned(
-            top: size.height * 0.05,
-            left: -50,
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withAlpha(20),
-              ),
-            ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.2, 1.2), duration: 8.seconds, curve: Curves.easeInOut)
-                .blur(begin: const Offset(50, 50), end: const Offset(70, 70)),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.0, 0.35, 0.65, 1.0],
+            colors: AppColors.loginBgGradient,
           ),
-          Positioned(
-            top: size.height * 0.35,
-            right: -80,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.teal.withAlpha(15),
-              ),
-            ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.3, 1.3), duration: 10.seconds, curve: Curves.easeInOut)
-                .blur(begin: const Offset(60, 60), end: const Offset(80, 80)),
-          ),
+        ),
+        child: Stack(
+          children: [
+            // ── Ambient Background Glows ──
+            Positioned(
+              top: size.height * 0.05,
+              left: -50,
+              child: Container(
+                width: 250,
+                height: 250,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withAlpha(25),
+                ),
+              ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+                  .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.2, 1.2), duration: 8.seconds, curve: Curves.easeInOut)
+                  .blur(begin: const Offset(50, 50), end: const Offset(70, 70)),
+            ),
+            Positioned(
+              top: size.height * 0.30,
+              right: -80,
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.accent.withAlpha(35),
+                ),
+              ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+                  .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.3, 1.3), duration: 10.seconds, curve: Curves.easeInOut)
+                  .blur(begin: const Offset(60, 60), end: const Offset(80, 80)),
+            ),
 
           // ── Scrollable Form Layout ──
           SafeArea(
@@ -390,8 +400,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildInputField({
     required String hint,
