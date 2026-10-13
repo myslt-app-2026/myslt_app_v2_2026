@@ -25,6 +25,8 @@ class MorePage extends StatelessWidget {
     _MoreItem(label: 'Happy Day', icon: Icons.sentiment_very_satisfied_rounded, color: Color(0xFFF59E0B), route: AppRoutes.happyDay),
     _MoreItem(label: 'PeoTV', icon: Icons.tv_rounded, color: Color(0xFF003087), route: AppRoutes.peotv),
     _MoreItem(label: 'Report Fault', icon: Icons.report_problem_outlined, color: Color(0xFFDC2626), route: AppRoutes.reportFault),
+    _MoreItem(label: 'Fault History', icon: Icons.dashboard_customize_rounded, color: Color(0xFF003087), route: AppRoutes.faultHistory),
+    _MoreItem(label: 'Track Ticket', icon: Icons.track_changes_rounded, color: Color(0xFF0066CC), route: AppRoutes.trackTicket),
     _MoreItem(label: 'IDD Services', icon: Icons.public_rounded, color: Color(0xFF6B7280), route: AppRoutes.iddServices),
     _MoreItem(label: 'Location Svcs', icon: Icons.location_on_rounded, color: Color(0xFF10B981), route: AppRoutes.locationServices),
     _MoreItem(label: 'Profile', icon: Icons.person_rounded, color: Color(0xFF003087), route: AppRoutes.profile),

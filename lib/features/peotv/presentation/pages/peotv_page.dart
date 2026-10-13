@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -7,90 +8,92 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/mock/mock_data.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../data/models/peotv_package_model.dart';
+import '../../providers/peotv_provider.dart';
 
-class PeoTVPage extends StatefulWidget {
+class PeoTVPage extends ConsumerWidget {
   const PeoTVPage({super.key});
 
   @override
-  State<PeoTVPage> createState() => _PeoTVPageState();
-}
-
-class _PeoTVPageState extends State<PeoTVPage> {
-  @override
-  Widget build(BuildContext context) {
-    final packages = MockData.peoTVPackages;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final peoTvAsync = ref.watch(peoTVProvider);
+    final packages = (peoTvAsync.valueOrNull != null && peoTvAsync.valueOrNull!.isNotEmpty)
+        ? peoTvAsync.valueOrNull!
+        : MockData.peoTVPackages;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            expandedHeight: 120,
-            backgroundColor: const Color(0xFF1E1B4B),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-              onPressed: () => context.pop(),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF1E1B4B), Color(0xFF312E81), Color(0xFF4338CA)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+      body: RefreshIndicator(
+        onRefresh: () => ref.read(peoTVProvider.notifier).refresh(),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              expandedHeight: 120,
+              backgroundColor: const Color(0xFF1E1B4B),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+                onPressed: () => context.pop(),
+              ),
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF1E1B4B), Color(0xFF312E81), Color(0xFF4338CA)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
-                ),
-                child: Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.tv_rounded, color: Colors.white, size: 28),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('PeoTV', style: AppTextStyles.headlineMedium.copyWith(color: Colors.white)),
-                            Text('Choose your package', style: AppTextStyles.bodySmall.copyWith(color: Colors.white70)),
-                          ],
-                        ),
-                      ],
+                  child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.tv_rounded, color: Colors.white, size: 28),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('PeoTV', style: AppTextStyles.headlineMedium.copyWith(color: Colors.white)),
+                              Text('Choose your package', style: AppTextStyles.bodySmall.copyWith(color: Colors.white70)),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(AppSpacing.pagePadding),
-            sliver: SliverList.builder(
-              itemCount: packages.length,
-              itemBuilder: (context, index) {
-                return _PeoTVPackageCard(
-                  package: packages[index],
-                  animDelay: Duration(milliseconds: index * 100),
-                );
-              },
+            SliverPadding(
+              padding: const EdgeInsets.all(AppSpacing.pagePadding),
+              sliver: SliverList.builder(
+                itemCount: packages.length,
+                itemBuilder: (context, index) {
+                  return _PeoTVPackageCard(
+                    package: packages[index],
+                    animDelay: Duration(milliseconds: index * 100),
+                  );
+                },
+              ),
             ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl4)),
-        ],
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl4)),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _PeoTVPackageCard extends StatelessWidget {
+class _PeoTVPackageCard extends ConsumerWidget {
   const _PeoTVPackageCard({required this.package, required this.animDelay});
 
   final PeoTVPackageModel package;
   final Duration animDelay;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.lg),
       decoration: BoxDecoration(
@@ -203,12 +206,25 @@ class _PeoTVPackageCard extends StatelessWidget {
                           )
                         : AppButton(
                             label: 'Activate',
-                            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('${package.name} activated!'),
-                                backgroundColor: AppColors.success,
-                              ),
-                            ),
+                            onPressed: () async {
+                              final success = await ref
+                                  .read(peoTVProvider.notifier)
+                                  .activatePackage(package.id);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      success
+                                          ? '${package.name} activated successfully!'
+                                          : 'Failed to activate ${package.name}',
+                                    ),
+                                    backgroundColor: success
+                                        ? AppColors.success
+                                        : AppColors.error,
+                                  ),
+                                );
+                              }
+                            },
                             width: 120,
                             height: 40,
                           ),

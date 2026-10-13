@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +7,7 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../data/models/fault_report_model.dart';
+import '../../data/repositories/fault_repository.dart';
 
 class ReportFaultPage extends StatefulWidget {
   const ReportFaultPage({super.key});
@@ -20,6 +20,7 @@ class _ReportFaultPageState extends State<ReportFaultPage> {
   final _formKey = GlobalKey<FormState>();
   final _descCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController(text: '0771234567');
+  final _faultRepository = FaultRepository();
   FaultCategory _selectedCategory = FaultCategory.noInternet;
   bool _isLoading = false;
 
@@ -34,13 +35,17 @@ class _ReportFaultPageState extends State<ReportFaultPage> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 1800));
+
+    final result = await _faultRepository.createFaultRequest(
+      telephoneNumber: _phoneCtrl.text.trim(),
+      category: _selectedCategory,
+      description: _descCtrl.text.trim(),
+    );
+
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    // Generate random Ticket ID
-    final randomNum = Random().nextInt(90000) + 10000;
-    final ticketId = 'FLT-$randomNum';
+    final ticketId = result['ticketId']?.toString() ?? 'FLT-10024';
 
     await showDialog<void>(
       context: context,
@@ -91,6 +96,17 @@ class _ReportFaultPageState extends State<ReportFaultPage> {
           ],
         ),
         actions: [
+          OutlinedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              context.push('/track-ticket?ticketId=$ticketId');
+            },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
+            ),
+            child: const Text('Track Ticket'),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
@@ -100,7 +116,7 @@ class _ReportFaultPageState extends State<ReportFaultPage> {
               Navigator.of(ctx).pop();
               context.pop();
             },
-            child: const Text('OK'),
+            child: const Text('Done'),
           ),
         ],
       ),
@@ -113,12 +129,19 @@ class _ReportFaultPageState extends State<ReportFaultPage> {
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded),
+          icon: const Icon(Icons.arrow_back_ios_rounded),
           onPressed: () => context.pop(),
         ),
         title: Text('Report Fault', style: AppTextStyles.titleMedium),
         backgroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history_rounded, color: AppColors.primary),
+            tooltip: 'Fault History Dashboard',
+            onPressed: () => context.push('/fault-history'),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.pagePadding),

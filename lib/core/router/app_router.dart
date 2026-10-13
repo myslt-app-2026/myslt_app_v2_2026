@@ -28,6 +28,8 @@ import '../../features/more/presentation/pages/gift_data_page.dart';
 import '../../features/more/presentation/pages/data_loan_page.dart';
 import '../../features/more/presentation/pages/happy_day_page.dart';
 import '../../features/more/presentation/pages/report_fault_page.dart';
+import '../../features/more/presentation/pages/fault_history_page.dart';
+import '../../features/more/presentation/pages/track_ticket_page.dart';
 import '../../features/more/presentation/pages/idd_services_page.dart';
 import '../../features/more/presentation/pages/location_services_page.dart';
 import '../../features/more/presentation/pages/contact_us_page.dart';
@@ -70,6 +72,8 @@ abstract final class AppRoutes {
   static const String dataLoan = '/data-loan';
   static const String happyDay = '/happy-day';
   static const String reportFault = '/report-fault';
+  static const String faultHistory = '/fault-history';
+  static const String trackTicket = '/track-ticket';
   static const String iddServices = '/idd-services';
   static const String locationServices = '/locations';
   static const String contactUs = '/contact-us';
@@ -306,6 +310,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _slidePage(
           state: state,
           child: const ReportFaultPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.faultHistory,
+        pageBuilder: (context, state) => _slidePage(
+          state: state,
+          child: const FaultHistoryPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.trackTicket,
+        pageBuilder: (context, state) => _slidePage(
+          state: state,
+          child: TrackTicketPage(
+            initialTicketId: state.uri.queryParameters['ticketId'],
+          ),
         ),
       ),
       GoRoute(
