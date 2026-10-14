@@ -81,9 +81,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: [0.0, 0.35, 0.65, 1.0],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            stops: [0.0, 0.38, 0.70, 1.0],
             colors: AppColors.loginBgGradient,
           ),
         ),
@@ -98,7 +98,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 height: 250,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withAlpha(25),
+                  color: const Color(0xFF00BCD4).withAlpha(35),
                 ),
               ).animate(onPlay: (controller) => controller.repeat(reverse: true))
                   .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.2, 1.2), duration: 8.seconds, curve: Curves.easeInOut)
@@ -112,7 +112,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 height: 300,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.accent.withAlpha(35),
+                  color: const Color(0xFF0A4FBA).withAlpha(45),
                 ),
               ).animate(onPlay: (controller) => controller.repeat(reverse: true))
                   .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.3, 1.3), duration: 10.seconds, curve: Curves.easeInOut)
