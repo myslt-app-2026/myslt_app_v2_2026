@@ -212,7 +212,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       borderRadius: BorderRadius.circular(28),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF0F172A).withAlpha(18),
+                          color: const Color(0xFF06283D).withAlpha(15),
                           blurRadius: 30,
                           offset: const Offset(0, 10),
                         ),
@@ -350,7 +350,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   // ── Social Sign-in Header ──
                   Row(
                     children: [
-                      const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+                      const Expanded(child: Divider(color: Color(0xFFD3E4E6))),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                         child: Text(
@@ -358,7 +358,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           style: AppTextStyles.caption.copyWith(color: const Color(0xFF94A3B8)),
                         ),
                       ),
-                      const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+                      const Expanded(child: Divider(color: Color(0xFFD3E4E6))),
                     ],
                   ).animate().fadeIn(delay: 600.ms),
                   const SizedBox(height: AppSpacing.md),
@@ -368,11 +368,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     children: [
                       Expanded(
                         child: _buildSocialButton(
-                          label: 'Google',
                           iconWidget: SvgPicture.string(
                             _googleSvg,
-                            width: 20,
-                            height: 20,
+                            width: 22,
+                            height: 22,
                           ),
                           onTap: () => _handleSocialLogin('Google'),
                         ),
@@ -380,10 +379,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       const SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: _buildSocialButton(
-                          label: 'Facebook',
                           icon: Icons.facebook_rounded,
                           color: const Color(0xFF1877F2),
                           onTap: () => _handleSocialLogin('Facebook'),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: _buildSocialButton(
+                          icon: Icons.apple_rounded,
+                          color: Colors.black,
+                          onTap: () => _handleSocialLogin('Apple'),
                         ),
                       ),
                     ],
@@ -499,7 +505,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Widget _buildSocialButton({
-    required String label,
+    String? label,
     IconData? icon,
     Color? color,
     Widget? iconWidget,
@@ -508,16 +514,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 50,
+        height: 48,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFDCEAEB)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(10),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+              color: const Color(0xFF06283D).withAlpha(12),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -528,14 +534,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               iconWidget
             else if (icon != null)
               Icon(icon, color: color, size: 24),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: const Color(0xFF475569),
-                fontWeight: FontWeight.bold,
+            if (label != null && label.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: const Color(0xFF475569),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),
