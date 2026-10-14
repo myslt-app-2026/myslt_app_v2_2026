@@ -25,12 +25,15 @@ abstract final class AppColors {
   static const List<Color> brandGradient = [primary, accent, teal];
   static const List<Color> headerGradient = [Color(0xFF083B82), Color(0xFF0052CC)];
   static const List<Color> cardGradient = [Color(0xFF00A2F3), Color(0xFF0052CC)];
-  static const List<Color> buttonGradient = [Color(0xFF0044B5), Color(0xFF0066FF)];
+  static const List<Color> buttonGradient = [
+    Color(0xFF0A4FBA),
+    Color(0xFF1E6DEB),
+  ];
   static const List<Color> loginBgGradient = [
-    Color(0xFF083B82),
-    Color(0xFF0077C8),
-    Color(0xFFEBF6FA),
-    Color(0xFFF6F9FC),
+    Color(0xFF06576F),
+    Color(0xFF0A3D7C),
+    Color(0xFFE2F1F3),
+    Color(0xFFEEF7F7),
   ];
 
   // ─── Semantic Colors ──────────────────────────────────────────────────────
