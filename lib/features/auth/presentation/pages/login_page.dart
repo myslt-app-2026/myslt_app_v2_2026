@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -77,38 +76,48 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // Modern Light Grey-Blue
-      body: Stack(
-        children: [
-          // ── Ambient Background Glows (Pastel Light Theme) ──
-          Positioned(
-            top: size.height * 0.05,
-            left: -50,
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withAlpha(20),
-              ),
-            ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.2, 1.2), duration: 8.seconds, curve: Curves.easeInOut)
-                .blur(begin: const Offset(50, 50), end: const Offset(70, 70)),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            stops: [0.0, 0.38, 0.70, 1.0],
+            colors: AppColors.loginBgGradient,
           ),
-          Positioned(
-            top: size.height * 0.35,
-            right: -80,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.teal.withAlpha(15),
-              ),
-            ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.3, 1.3), duration: 10.seconds, curve: Curves.easeInOut)
-                .blur(begin: const Offset(60, 60), end: const Offset(80, 80)),
-          ),
+        ),
+        child: Stack(
+          children: [
+            // ── Ambient Background Glows ──
+            Positioned(
+              top: size.height * 0.05,
+              left: -50,
+              child: Container(
+                width: 250,
+                height: 250,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF00BCD4).withAlpha(35),
+                ),
+              ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+                  .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.2, 1.2), duration: 8.seconds, curve: Curves.easeInOut)
+                  .blur(begin: const Offset(50, 50), end: const Offset(70, 70)),
+            ),
+            Positioned(
+              top: size.height * 0.30,
+              right: -80,
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF0A4FBA).withAlpha(45),
+                ),
+              ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+                  .scale(begin: const Offset(1.0, 1.0), end: const Offset(1.3, 1.3), duration: 10.seconds, curve: Curves.easeInOut)
+                  .blur(begin: const Offset(60, 60), end: const Offset(80, 80)),
+            ),
 
           // ── Scrollable Form Layout ──
           SafeArea(
@@ -126,21 +135,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   Column(
                     children: [
                       Container(
-                        width: 72,
-                        height: 72,
+                        width: 76,
+                        height: 76,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(22),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primary.withAlpha(26),
-                              blurRadius: 24,
+                              color: Colors.black.withAlpha(30),
+                              blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
                           ],
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(12),
                           child: Image.asset(
                             'assets/images/sltLogo.png',
                             fit: BoxFit.contain,
@@ -151,45 +160,65 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       Text(
                         'mySLT',
                         style: AppTextStyles.headlineMedium.copyWith(
-                          color: const Color(0xFF0F172A),
+                          color: Colors.white,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: 1.5,
+                          letterSpacing: 1.2,
                         ),
                       ).animate().fadeIn(delay: 150.ms),
-                      Text(
-                        'Your Self-Care Companion',
-                        style: AppTextStyles.caption.copyWith(
-                          color: const Color(0xFF475569),
-                          letterSpacing: 2,
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withAlpha(30),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withAlpha(70),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 7,
+                              height: 7,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF00E676),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'YOUR SELF-CARE COMPANION',
+                              style: AppTextStyles.caption.copyWith(
+                                color: Colors.white,
+                                letterSpacing: 1.2,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
                         ),
                       ).animate().fadeIn(delay: 250.ms),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.xl3),
 
-                  // ── Glassmorphism Form Card ──
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(AppSpacing.lg),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(160),
-                          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-                          border: Border.all(
-                            color: Colors.white.withAlpha(220),
-                            width: 1.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withAlpha(20),
-                              blurRadius: 30,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
+                  // ── Crisp White Form Card ──
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF06283D).withAlpha(15),
+                          blurRadius: 30,
+                          offset: const Offset(0, 10),
                         ),
-                        child: Form(
+                      ],
+                    ),
+                    child: Form(
                           key: _formKey,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -307,21 +336,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               // Submit Button
                               AppButton(
                                 label: 'Sign In',
+                                icon: Icons.arrow_forward_rounded,
+                                iconPosition: IconPosition.right,
                                 onPressed: _handleLogin,
                                 isLoading: authState.isLoading,
                               ).animate().fadeIn(delay: 550.ms).scale(begin: const Offset(0.95, 0.95)),
                             ],
                           ),
                         ),
-                      ),
-                    ),
-                  ).animate().fadeIn(duration: 400.ms, delay: 300.ms).slideY(begin: 0.1),
+                      ).animate().fadeIn(duration: 400.ms, delay: 300.ms).slideY(begin: 0.1),
                   const SizedBox(height: AppSpacing.xl),
 
                   // ── Social Sign-in Header ──
                   Row(
                     children: [
-                      const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+                      const Expanded(child: Divider(color: Color(0xFFD3E4E6))),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                         child: Text(
@@ -329,7 +358,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           style: AppTextStyles.caption.copyWith(color: const Color(0xFF94A3B8)),
                         ),
                       ),
-                      const Expanded(child: Divider(color: Color(0xFFE2E8F0))),
+                      const Expanded(child: Divider(color: Color(0xFFD3E4E6))),
                     ],
                   ).animate().fadeIn(delay: 600.ms),
                   const SizedBox(height: AppSpacing.md),
@@ -339,11 +368,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     children: [
                       Expanded(
                         child: _buildSocialButton(
-                          label: 'Google',
                           iconWidget: SvgPicture.string(
                             _googleSvg,
-                            width: 20,
-                            height: 20,
+                            width: 22,
+                            height: 22,
                           ),
                           onTap: () => _handleSocialLogin('Google'),
                         ),
@@ -351,10 +379,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       const SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: _buildSocialButton(
-                          label: 'Facebook',
                           icon: Icons.facebook_rounded,
                           color: const Color(0xFF1877F2),
                           onTap: () => _handleSocialLogin('Facebook'),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: _buildSocialButton(
+                          icon: Icons.apple_rounded,
+                          color: Colors.black,
+                          onTap: () => _handleSocialLogin('Apple'),
                         ),
                       ),
                     ],
@@ -390,8 +425,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildInputField({
     required String hint,
@@ -437,30 +473,30 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             hintStyle: AppTextStyles.bodyMedium.copyWith(color: Colors.black38),
             prefixIcon: Icon(icon, color: const Color(0xFF64748B), size: 20),
             filled: true,
-            fillColor: Colors.white.withAlpha(200),
+            fillColor: const Color(0xFFF8FAFC),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.md,
-              vertical: AppSpacing.sm,
+              vertical: AppSpacing.md,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Color(0xFFE2E8F0)),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Color(0xFFE2E8F0)),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.primary, width: 2),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.error, width: 1.5),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: AppColors.error, width: 1.5),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.error, width: 2),
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: AppColors.error, width: 1.5),
             ),
           ),
         ),
@@ -469,7 +505,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Widget _buildSocialButton({
-    required String label,
+    String? label,
     IconData? icon,
     Color? color,
     Widget? iconWidget,
@@ -478,16 +514,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 50,
+        height: 48,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFDCEAEB)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(10),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+              color: const Color(0xFF06283D).withAlpha(12),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -498,14 +534,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               iconWidget
             else if (icon != null)
               Icon(icon, color: color, size: 24),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: const Color(0xFF475569),
-                fontWeight: FontWeight.bold,
+            if (label != null && label.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: const Color(0xFF475569),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

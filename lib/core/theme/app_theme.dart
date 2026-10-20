@@ -15,9 +15,9 @@ final ThemeData lightTheme = ThemeData(
     primary: AppColors.primary,
     onPrimary: Colors.white,
     primaryContainer: AppColors.primaryLight,
-    secondary: AppColors.teal,
+    secondary: AppColors.accent,
     onSecondary: Colors.white,
-    tertiary: AppColors.accent,
+    tertiary: AppColors.cyan,
     surface: AppColors.surfaceLight,
     onSurface: AppColors.textPrimary,
     surfaceContainerHighest: AppColors.backgroundLight,
@@ -75,12 +75,12 @@ final ThemeData lightTheme = ThemeData(
     labelSmall: GoogleFonts.inter(color: AppColors.textTertiary),
   ),
   cardTheme: CardThemeData(
-    elevation: 0,
+    elevation: 2,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
     ),
     color: AppColors.cardLight,
-    shadowColor: AppColors.primary.withAlpha(20),
+    shadowColor: const Color(0xFF0F172A).withAlpha(15),
     surfaceTintColor: Colors.transparent,
   ),
   appBarTheme: AppBarTheme(
@@ -197,8 +197,8 @@ final ThemeData lightTheme = ThemeData(
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
     backgroundColor: AppColors.surfaceLight,
     selectedItemColor: AppColors.primary,
-    unselectedItemColor: AppColors.textTertiary,
-    elevation: 0,
+    unselectedItemColor: AppColors.textSecondary,
+    elevation: 8,
     type: BottomNavigationBarType.fixed,
   ),
   tabBarTheme: TabBarThemeData(
