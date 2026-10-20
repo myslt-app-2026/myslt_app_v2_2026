@@ -1,30 +1,35 @@
 import 'package:flutter/material.dart';
 
 /// SLT-Mobitel brand color palette.
-/// All colors defined as per the official mySLT brand guidelines.
+/// Updated to match the new mySLT design (royal blue + navy header,
+/// teal / cyan accents, lime highlight, white cards with soft shadows).
 abstract final class AppColors {
   // ─── Primary Brand ────────────────────────────────────────────────────────
-  static const Color primary = Color(0xFF003087);
-  static const Color primaryLight = Color(0xFF1A4BA0);
-  static const Color primaryDark = Color(0xFF002070);
+  static const Color primary = Color(0xFF1450E6); // buttons, links, active items
+  static const Color primaryLight = Color(0xFF3B6FF0);
+  static const Color primaryDark = Color(0xFF0E3CB5);
+  static const Color navy = Color(0xFF083579); // deep header colour (new)
+  static const Color primaryTint = Color(0xFFEFF6FF); // light blue chip/button bg (new)
 
   // ─── Accent ───────────────────────────────────────────────────────────────
-  static const Color accent = Color(0xFF0066CC);
-  static const Color accentLight = Color(0xFF3388DD);
+  static const Color accent = Color(0xFF0266E0);
+  static const Color accentLight = Color(0xFF4D9BF0);
+  static const Color lime = Color(0xFFA2E639); // "MOBITEL" / Fibre Active dot (new)
+  static const Color cyan = Color(0xFF27D2EE); // Extra GB bar (new)
 
   // ─── Teal (Secondary) ─────────────────────────────────────────────────────
-  static const Color teal = Color(0xFF00AEEF);
-  static const Color tealLight = Color(0xFF33C0F2);
-  static const Color tealDark = Color(0xFF0095CC);
+  static const Color teal = Color(0xFF14B8A6);
+  static const Color tealLight = Color(0xFF2DD4BF);
+  static const Color tealDark = Color(0xFF0F9488);
 
   // ─── Gradient Stops ───────────────────────────────────────────────────────
   static const List<Color> brandGradient = [primary, accent, teal];
-  static const List<Color> headerGradient = [primary, Color(0xFF004BB5)];
-  static const List<Color> cardGradient = [Color(0xFF003087), Color(0xFF0066CC)];
+  static const List<Color> headerGradient = [Color(0xFF0266E0), navy];
+  static const List<Color> cardGradient = [Color(0xFF0A6FD8), Color(0xFF14B8A6)];
 
   // ─── Semantic Colors ──────────────────────────────────────────────────────
-  static const Color success = Color(0xFF22C55E);
-  static const Color successLight = Color(0xFFDCFCE7);
+  static const Color success = Color(0xFF14B981);
+  static const Color successLight = Color(0xFFE6FAF3);
   static const Color warning = Color(0xFFF59E0B);
   static const Color warningLight = Color(0xFFFEF3C7);
   static const Color error = Color(0xFFEF4444);
@@ -33,11 +38,11 @@ abstract final class AppColors {
   static const Color infoLight = Color(0xFFDBEAFE);
 
   // ─── Light Theme Surfaces ─────────────────────────────────────────────────
-  static const Color backgroundLight = Color(0xFFF5F7FA);
+  static const Color backgroundLight = Color(0xFFFFFFFF);
   static const Color surfaceLight = Color(0xFFFFFFFF);
   static const Color cardLight = Color(0xFFFFFFFF);
-  static const Color dividerLight = Color(0xFFE5E7EB);
-  static const Color borderLight = Color(0xFFD1D5DB);
+  static const Color dividerLight = Color(0xFFE8EDF5);
+  static const Color borderLight = Color(0xFFE6ECF5);
 
   // ─── Dark Theme Surfaces ──────────────────────────────────────────────────
   static const Color backgroundDark = Color(0xFF0D1117);
@@ -47,7 +52,7 @@ abstract final class AppColors {
   static const Color borderDark = Color(0xFF21262D);
 
   // ─── Text Colors ──────────────────────────────────────────────────────────
-  static const Color textPrimary = Color(0xFF111827);
+  static const Color textPrimary = Color(0xFF2A3040);
   static const Color textSecondary = Color(0xFF6B7280);
   static const Color textTertiary = Color(0xFF9CA3AF);
   static const Color textDisabled = Color(0xFFD1D5DB);

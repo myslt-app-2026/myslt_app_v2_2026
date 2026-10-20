@@ -20,6 +20,8 @@ import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/profile/presentation/pages/change_contact_page.dart';
 import '../../features/connections/presentation/pages/manage_connections_page.dart';
 import '../../features/connections/presentation/pages/add_connection_page.dart';
+import '../../features/new_connection/presentation/screens/package_selection_screen.dart';
+import '../../features/new_connection/presentation/screens/nic_upload_screen.dart';
 import '../../features/peotv/presentation/pages/peotv_page.dart';
 import '../../features/more/presentation/pages/more_page.dart';
 import '../../features/more/presentation/pages/loyalty_points_page.dart';
@@ -62,6 +64,8 @@ abstract final class AppRoutes {
   static const String changeContact = '/profile/contact';
   static const String connections = '/connections';
   static const String addConnection = '/connections/add';
+  static const String newConnection = '/new-connection';
+  static const String newConnectionNic = '/new-connection/nic';
   static const String settings = '/settings';
   static const String language = '/settings/language';
 
@@ -252,6 +256,20 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _slidePage(
           state: state,
           child: const AddConnectionPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.newConnection,
+        pageBuilder: (context, state) => _slidePage(
+          state: state,
+          child: const PackageSelectionScreen(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.newConnectionNic,
+        pageBuilder: (context, state) => _slidePage(
+          state: state,
+          child: const NicUploadScreen(),
         ),
       ),
       GoRoute(

@@ -51,11 +51,33 @@ class _ManageConnectionsPageState extends State<ManageConnectionsPage> {
           if (index == _connections.length) {
             return Padding(
               padding: const EdgeInsets.only(top: AppSpacing.md),
-              child: AppButton(
-                label: 'Add New Connection',
-                onPressed: () => context.push(AppRoutes.addConnection),
-                variant: AppButtonVariant.outline,
-                icon: Icons.add_rounded,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Link an existing account (already in the app)
+                  AppButton(
+                    label: 'Add New Connection',
+                    onPressed: () => context.push(AppRoutes.addConnection),
+                    variant: AppButtonVariant.outline,
+                    icon: Icons.add_rounded,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  // Apply for a brand-new SLT connection (new flow)
+                  ElevatedButton.icon(
+                    onPressed: () => context.push(AppRoutes.newConnection),
+                    icon: const Icon(Icons.wifi_rounded),
+                    label: const Text('Apply for New Connection'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(AppSpacing.buttonRadius),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ).animate().fadeIn(duration: 300.ms, delay: Duration(milliseconds: index * 80));
           }
