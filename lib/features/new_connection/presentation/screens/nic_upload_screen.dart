@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../../data/nic_utils.dart';
 import '../../providers/applicant_provider.dart';
 import '../widgets/order_summary_bar.dart';
+import 'package:go_router/go_router.dart';
 
 /// Step 2 of the new-connection flow: NIC photos + applicant details.
 class NicUploadScreen extends ConsumerStatefulWidget {
@@ -242,12 +243,7 @@ class _NicUploadScreenState extends ConsumerState<NicUploadScreen> {
             return;
           }
 
-          // TODO: go to the selfie step once it exists, e.g.
-          // context.push(AppRoutes.newConnectionSelfie);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Next step: selfie check (coming soon)')),
-          );
+         context.push('/new-connection/selfie');
         },
       ),
     );
