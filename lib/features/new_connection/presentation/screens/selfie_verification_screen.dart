@@ -242,7 +242,7 @@ class _SelfieVerificationScreenState
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: CircleAvatar(
-        backgroundColor: colors.primary.withOpacity(0.08),
+        backgroundColor: colors.primary.withValues(alpha: 0.08),
         child: Icon(icon, color: colors.primary),
       ),
       title: Text(
@@ -338,7 +338,7 @@ class _SelfieVerificationScreenState
               height: 290,
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                color: colors.primary.withOpacity(0.06),
+                color: colors.primary.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(120),
                 border: Border.all(
                   color: colors.primary,
