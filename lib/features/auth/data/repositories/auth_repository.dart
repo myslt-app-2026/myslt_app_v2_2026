@@ -405,7 +405,7 @@ class AuthRepository {
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout ||
         e.type == DioExceptionType.sendTimeout) {
-      return 'Connection timeout. Please check if the Node backend is running on http://10.0.2.2:3000';
+      return 'Connection timeout. Please check if the Node backend is running on ${ApiConstants.baseUrl}';
     }
     if (e.type == DioExceptionType.connectionError) {
       return 'Server unreachable. Please start your backend server (node server.js).';
