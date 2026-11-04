@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/address_provider.dart';
 import '../widgets/order_summary_bar.dart';
+import '../widgets/step_progress_bar.dart';
 
 /// Step 4 of the new-connection flow: Address & Fibre availability check.
 class CheckAvailabilityScreen extends ConsumerStatefulWidget {
@@ -20,7 +21,7 @@ class _CheckAvailabilityScreenState
   late final TextEditingController _streetController;
   late final TextEditingController _landmarkController;
   late final TextEditingController _cityController;
-  String _selectedDistrict = 'Gampaha';
+  String? _selectedDistrict;
 
   @override
   void initState() {
@@ -44,29 +45,71 @@ class _CheckAvailabilityScreenState
 
   void _syncDetails() {
     ref.read(addressProvider.notifier).update(
-          houseNumberAndStreet: _streetController.text,
-          apartmentLandmark: _landmarkController.text,
-          city: _cityController.text,
+          houseNumberAndStreet: _streetController.text.trim(),
+          apartmentLandmark: _landmarkController.text.trim(),
+          city: _cityController.text.trim(),
           district: _selectedDistrict,
         );
   }
 
   Future<void> _checkAvailability() async {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill in your address and select a district first.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     _syncDetails();
-    await ref.read(addressProvider.notifier).checkAvailability();
+
+    final result = await ref.read(addressProvider.notifier).checkAvailability(
+          street: _streetController.text.trim(),
+          landmark: _landmarkController.text.trim(),
+          city: _cityController.text.trim(),
+          district: _selectedDistrict!,
+        );
+
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Fibre coverage confirmed for your address!'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+
+    if (result.available) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Fibre coverage confirmed for your address!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   void _handleContinue() {
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
+
+    final address = ref.read(addressProvider);
+    if (address.coverageResult == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please check fibre availability before continuing.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    if (!address.coverageResult!.available) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Fibre coverage is not available at this address. Please check your address or contact SLT.'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
     _syncDetails();
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -92,23 +135,7 @@ class _CheckAvailabilityScreenState
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           children: [
-            Text(
-              'Step 4 of 7',
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: colors.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: 4 / 7,
-                minHeight: 5,
-                backgroundColor: colors.outlineVariant.withValues(alpha: 0.3),
-                valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
-              ),
-            ),
+            const StepProgressBar(currentStep: 4),
             const SizedBox(height: 24),
             Text(
               'Check availability',
@@ -143,6 +170,11 @@ class _CheckAvailabilityScreenState
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 labelText: 'House number and street',
+                hintText: 'e.g. No. 55, Main Street',
+                hintStyle: TextStyle(
+                  color: const Color(0xFF94A3B8).withValues(alpha: 0.8),
+                  fontSize: 14,
+                ),
                 labelStyle: const TextStyle(
                   color: Color(0xFF475569),
                   fontSize: 14,
@@ -180,6 +212,7 @@ class _CheckAvailabilityScreenState
               textCapitalization: TextCapitalization.sentences,
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(
+                labelText: 'Apartment, floor or landmark (optional)',
                 hintText: 'Apartment, floor or landmark (optional)',
                 hintStyle: const TextStyle(
                   color: Color(0xFF475569),
@@ -213,6 +246,11 @@ class _CheckAvailabilityScreenState
               textInputAction: TextInputAction.done,
               decoration: InputDecoration(
                 labelText: 'City / town',
+                hintText: 'e.g. Negombo',
+                hintStyle: TextStyle(
+                  color: const Color(0xFF94A3B8).withValues(alpha: 0.8),
+                  fontSize: 14,
+                ),
                 labelStyle: const TextStyle(
                   color: Color(0xFF475569),
                   fontSize: 14,
@@ -248,6 +286,13 @@ class _CheckAvailabilityScreenState
             DropdownButtonFormField<String>(
               value: _selectedDistrict,
               isExpanded: true,
+              hint: const Text(
+                'Select district',
+                style: TextStyle(
+                  color: Color(0xFF64748B),
+                  fontSize: 14,
+                ),
+              ),
               icon: const Icon(
                 Icons.keyboard_arrow_down_rounded,
                 color: Color(0xFF1E293B),
@@ -288,12 +333,16 @@ class _CheckAvailabilityScreenState
                 );
               }).toList(),
               onChanged: (newDistrict) {
-                if (newDistrict != null) {
-                  setState(() {
-                    _selectedDistrict = newDistrict;
-                  });
-                  _syncDetails();
+                setState(() {
+                  _selectedDistrict = newDistrict;
+                });
+                _syncDetails();
+              },
+              validator: (val) {
+                if (val == null || val.isEmpty) {
+                  return 'Please select a district';
                 }
+                return null;
               },
             ),
             const SizedBox(height: 20),
@@ -338,14 +387,22 @@ class _CheckAvailabilityScreenState
                     ),
             ),
 
-            // Result banner
-            if (address.isFibreAvailable == true) ...[
+            // Dynamic coverage result banner (shown only after check is performed)
+            if (address.coverageResult != null) ...[
               const SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F7ED),
+                  color: address.coverageResult!.available
+                      ? const Color(0xFFE8F7ED)
+                      : const Color(0xFFFEE2E2),
                   borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: address.coverageResult!.available
+                        ? const Color(0xFF86EFAC)
+                        : const Color(0xFFFCA5A5),
+                    width: 1,
+                  ),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -353,12 +410,16 @@ class _CheckAvailabilityScreenState
                     Container(
                       width: 32,
                       height: 32,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF16A34A),
+                      decoration: BoxDecoration(
+                        color: address.coverageResult!.available
+                            ? const Color(0xFF16A34A)
+                            : const Color(0xFFDC2626),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.check,
+                      child: Icon(
+                        address.coverageResult!.available
+                            ? Icons.check
+                            : Icons.close_rounded,
                         color: Colors.white,
                         size: 20,
                       ),
@@ -367,21 +428,23 @@ class _CheckAvailabilityScreenState
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
-                            'Sample result: fibre available',
-                            style: TextStyle(
+                            address.coverageResult!.title,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                               color: Color(0xFF0F172A),
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
-                            'Continue to choose an installation time.',
+                            address.coverageResult!.subtitle,
                             style: TextStyle(
                               fontSize: 13,
-                              color: Color(0xFF334155),
+                              color: address.coverageResult!.available
+                                  ? const Color(0xFF334155)
+                                  : const Color(0xFF7F1D1D),
                             ),
                           ),
                         ],
@@ -402,4 +465,3 @@ class _CheckAvailabilityScreenState
     );
   }
 }
-

@@ -6,6 +6,7 @@ import '../../../../core/router/app_router.dart';
 import '../../data/models/connection_package.dart';
 import '../../providers/new_connection_providers.dart';
 import '../widgets/order_summary_bar.dart';
+import '../widgets/step_progress_bar.dart';
 
 /// Step 1 of the new-connection flow: choose a package and optional add-ons.
 class PackageSelectionScreen extends ConsumerWidget {
@@ -38,6 +39,8 @@ class PackageSelectionScreen extends ConsumerWidget {
         data: (list) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            const StepProgressBar(currentStep: 1),
+            const SizedBox(height: 20),
             Text('Choose your package',
                 style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 12),

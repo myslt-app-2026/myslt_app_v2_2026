@@ -23,7 +23,11 @@ class OrderSummaryBar extends ConsumerWidget {
     final tt = Theme.of(context).textTheme;
     final package = ref.watch(orderProvider).package;
     final monthly = ref.watch(monthlyTotalProvider);
-    final displayMonthly = package != null ? monthly : 8740;
+    final connectionCharge = NewConnectionRepository.connectionCharge;
+
+    // Uses the customer's selected package monthly price + any add-ons.
+    // If testing this step directly before selecting a package, fall back to the starter package price (2,990).
+    final displayMonthly = package != null ? monthly : 2990;
 
     return Material(
       elevation: 8,
@@ -45,7 +49,7 @@ class OrderSummaryBar extends ConsumerWidget {
                           tt.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     Text(
-                      '+ ${formatRs(NewConnectionRepository.connectionCharge)} one-time connection charge',
+                      '+ ${formatRs(connectionCharge)} one-time connection charge',
                       style: tt.bodySmall
                           ?.copyWith(color: cs.onSurfaceVariant),
                     ),

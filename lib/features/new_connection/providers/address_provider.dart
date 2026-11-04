@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/new_connection_repository.dart';
+import 'new_connection_providers.dart';
+
 const List<String> sriLankaDistricts = [
   'Ampara',
   'Anuradhapura',
@@ -30,36 +33,41 @@ const List<String> sriLankaDistricts = [
 
 class AddressState {
   const AddressState({
-    this.houseNumberAndStreet = 'No. 55, Main Street',
+    this.houseNumberAndStreet = '',
     this.apartmentLandmark = '',
-    this.city = 'Negombo',
-    this.district = 'Gampaha',
+    this.city = '',
+    this.district,
     this.isChecking = false,
-    this.isFibreAvailable = true,
+    this.coverageResult,
   });
 
   final String houseNumberAndStreet;
   final String apartmentLandmark;
   final String city;
-  final String district;
+  final String? district;
   final bool isChecking;
-  final bool? isFibreAvailable;
+  final CoverageResult? coverageResult;
+
+  bool? get isFibreAvailable => coverageResult?.available;
 
   AddressState copyWith({
     String? houseNumberAndStreet,
     String? apartmentLandmark,
     String? city,
     String? district,
+    bool clearDistrict = false,
     bool? isChecking,
-    bool? isFibreAvailable,
+    CoverageResult? coverageResult,
+    bool clearCoverage = false,
   }) =>
       AddressState(
         houseNumberAndStreet: houseNumberAndStreet ?? this.houseNumberAndStreet,
         apartmentLandmark: apartmentLandmark ?? this.apartmentLandmark,
         city: city ?? this.city,
-        district: district ?? this.district,
+        district: clearDistrict ? null : (district ?? this.district),
         isChecking: isChecking ?? this.isChecking,
-        isFibreAvailable: isFibreAvailable ?? this.isFibreAvailable,
+        coverageResult:
+            clearCoverage ? null : (coverageResult ?? this.coverageResult),
       );
 }
 
@@ -73,21 +81,43 @@ class AddressNotifier extends Notifier<AddressState> {
     String? city,
     String? district,
   }) {
+    final addressChanged = (houseNumberAndStreet != null &&
+            houseNumberAndStreet != state.houseNumberAndStreet) ||
+        (city != null && city != state.city) ||
+        (district != null && district != state.district);
+
     state = state.copyWith(
       houseNumberAndStreet: houseNumberAndStreet,
       apartmentLandmark: apartmentLandmark,
       city: city,
       district: district,
+      clearCoverage: addressChanged,
     );
   }
 
-  Future<void> checkAvailability() async {
+  Future<CoverageResult> checkAvailability({
+    required String street,
+    String? landmark,
+    required String city,
+    required String district,
+  }) async {
     state = state.copyWith(isChecking: true);
-    await Future<void>.delayed(const Duration(milliseconds: 600));
+    final repo = ref.read(newConnectionRepositoryProvider);
+    final result = await repo.checkCoverage(
+      street: street,
+      landmark: landmark,
+      city: city,
+      district: district,
+    );
     state = state.copyWith(
       isChecking: false,
-      isFibreAvailable: true,
+      houseNumberAndStreet: street,
+      apartmentLandmark: landmark ?? state.apartmentLandmark,
+      city: city,
+      district: district,
+      coverageResult: result,
     );
+    return result;
   }
 
   void reset() => state = const AddressState();
@@ -95,4 +125,3 @@ class AddressNotifier extends Notifier<AddressState> {
 
 final addressProvider =
     NotifierProvider<AddressNotifier, AddressState>(AddressNotifier.new);
-

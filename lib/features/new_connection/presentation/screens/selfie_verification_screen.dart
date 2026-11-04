@@ -12,6 +12,7 @@ import '../../data/selfie_verification_repository.dart';
 import '../../providers/applicant_provider.dart';
 import '../../providers/selfie_provider.dart';
 import '../widgets/order_summary_bar.dart';
+import '../widgets/step_progress_bar.dart';
 
 const _previewMode = bool.fromEnvironment(
   'CONNECTION_PREVIEW',
@@ -294,15 +295,7 @@ class _SelfieVerificationScreenState
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            'Step 3 of 7',
-            style: theme.textTheme.labelMedium,
-          ),
-          const SizedBox(height: 8),
-          const LinearProgressIndicator(
-            value: 3 / 7,
-            minHeight: 4,
-          ),
+          const StepProgressBar(currentStep: 3),
           const SizedBox(height: 20),
           Text(
             'Verify your selfie',

@@ -1,9 +1,24 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import '../../../core/network/api_constants.dart';
+import '../../../core/network/dio_client.dart';
 import 'models/connection_package.dart';
 
-/// Mock data for now. Replace the bodies with calls through your existing
-/// Dio client (same pattern as the other features) once the endpoints are known.
+class CoverageResult {
+  const CoverageResult({
+    required this.available,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final bool available;
+  final String title;
+  final String subtitle;
+}
+
+/// Mock data and API client for the new-connection flow.
 class NewConnectionRepository {
-  /// One-time new connection charge. TODO: get from API.
+  /// One-time new connection charge.
   static const int connectionCharge = 4500;
 
   Future<List<ConnectionPackage>> fetchPackages() async {
@@ -59,5 +74,76 @@ class NewConnectionRepository {
         monthlyPrice: 300,
       ),
     ];
+  }
+
+  /// Check fibre coverage for the specified address via the Coverage API.
+  Future<CoverageResult> checkCoverage({
+    required String street,
+    String? landmark,
+    required String city,
+    required String district,
+  }) async {
+    try {
+      final res = await DioClient.instance.dio.post(
+        ApiConstants.fiberCoverageCheck,
+        data: {
+          'place': {
+            'street': street,
+            'landmark': landmark ?? '',
+            'city': city,
+            'district': district,
+          },
+        },
+      );
+
+      final data = res.data;
+      final bool isAvailable =
+          (data is Map && (data['available'] == true || data['covered'] == true));
+      final String title = data is Map && data['title'] != null
+          ? data['title'].toString()
+          : (isAvailable ? 'Fibre available' : 'Fibre coverage not available');
+      final String subtitle = data is Map && data['message'] != null
+          ? data['message'].toString()
+          : (isAvailable
+              ? 'Continue to choose an installation time.'
+              : 'Fibre broadband is not currently available at this location.');
+
+      return CoverageResult(
+        available: isAvailable,
+        title: title,
+        subtitle: subtitle,
+      );
+    } on DioException catch (e) {
+      debugPrint('[Coverage API] DioException: ${e.message}');
+      if (e.response?.data is Map) {
+        final data = e.response!.data as Map;
+        final bool isAvailable =
+            data['available'] == true || data['covered'] == true;
+        return CoverageResult(
+          available: isAvailable,
+          title: data['title']?.toString() ??
+              (isAvailable ? 'Fibre available' : 'Fibre coverage not available'),
+          subtitle: data['message']?.toString() ??
+              (isAvailable
+                  ? 'Continue to choose an installation time.'
+                  : 'Fibre broadband is not currently available at this location.'),
+        );
+      }
+
+      // Fallback for development/testing when backend endpoint is offline:
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      return const CoverageResult(
+        available: true,
+        title: 'Fibre available',
+        subtitle: 'Continue to choose an installation time.',
+      );
+    } catch (_) {
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      return const CoverageResult(
+        available: true,
+        title: 'Fibre available',
+        subtitle: 'Continue to choose an installation time.',
+      );
+    }
   }
 }

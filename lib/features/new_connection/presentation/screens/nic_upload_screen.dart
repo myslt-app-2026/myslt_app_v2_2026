@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../../data/nic_utils.dart';
 import '../../providers/applicant_provider.dart';
 import '../widgets/order_summary_bar.dart';
+import '../widgets/step_progress_bar.dart';
 import 'package:go_router/go_router.dart';
 
 /// Step 2 of the new-connection flow: NIC photos + applicant details.
@@ -109,9 +110,8 @@ class _NicUploadScreenState extends ConsumerState<NicUploadScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Text('Step 2 of 7',
-                style: tt.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
-            const SizedBox(height: 4),
+            const StepProgressBar(currentStep: 2),
+            const SizedBox(height: 20),
             Text('Verify your identity',
                 style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),
