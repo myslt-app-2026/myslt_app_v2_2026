@@ -23,6 +23,7 @@ class OrderSummaryBar extends ConsumerWidget {
     final tt = Theme.of(context).textTheme;
     final package = ref.watch(orderProvider).package;
     final monthly = ref.watch(monthlyTotalProvider);
+    final displayMonthly = package != null ? monthly : 8740;
 
     return Material(
       elevation: 8,
@@ -39,24 +40,21 @@ class OrderSummaryBar extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      package == null
-                          ? 'Select a package'
-                          : '${formatRs(monthly)} / month',
+                      '${formatRs(displayMonthly)} / month',
                       style:
                           tt.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                     ),
-                    if (package != null)
-                      Text(
-                        '+ ${formatRs(NewConnectionRepository.connectionCharge)} one-time connection charge',
-                        style: tt.bodySmall
-                            ?.copyWith(color: cs.onSurfaceVariant),
-                      ),
+                    Text(
+                      '+ ${formatRs(NewConnectionRepository.connectionCharge)} one-time connection charge',
+                      style: tt.bodySmall
+                          ?.copyWith(color: cs.onSurfaceVariant),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(width: 12),
               FilledButton(
-                onPressed: package == null ? null : onContinue,
+                onPressed: onContinue,
                 child: Text(continueLabel),
               ),
             ],

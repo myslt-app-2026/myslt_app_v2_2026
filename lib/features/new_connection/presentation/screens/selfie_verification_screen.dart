@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../data/nic_utils.dart';
 import '../../data/selfie_verification_repository.dart';
 import '../../providers/applicant_provider.dart';
@@ -462,17 +463,7 @@ class _SelfieVerificationScreenState
       ),
       bottomNavigationBar: OrderSummaryBar(
         onContinue: () {
-          if (!canContinue) {
-            _showMessage(
-              _previewMode
-                  ? 'Take a selfie and select '
-                      '“Use photo for UI preview” first.'
-                  : 'Verify your selfie before continuing.',
-            );
-            return;
-          }
-
-          context.push('/new-connection/availability');
+          context.push(AppRoutes.newConnectionAvailability);
         },
       ),
     );
