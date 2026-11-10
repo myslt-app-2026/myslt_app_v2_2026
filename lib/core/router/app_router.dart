@@ -204,6 +204,20 @@ final routerProvider = Provider<GoRouter>((ref) {
               child: const MorePage(),
             ),
           ),
+          GoRoute(
+            path: AppRoutes.connections,
+            pageBuilder: (context, state) => _fadePage(
+              state: state,
+              child: const ManageConnectionsPage(),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.services,
+            pageBuilder: (context, state) => _fadePage(
+              state: state,
+              child: const ServicesPage(),
+            ),
+          ),
         ],
       ),
 
@@ -248,13 +262,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _slidePage(
           state: state,
           child: const ChangeContactPage(),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.connections,
-        pageBuilder: (context, state) => _slidePage(
-          state: state,
-          child: const ManageConnectionsPage(),
         ),
       ),
       GoRoute(
@@ -378,13 +385,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _slidePage(
           state: state,
           child: const LocationServicesPage(),
-        ),
-      ),
-      GoRoute(
-        path: AppRoutes.services,
-        pageBuilder: (context, state) => _slidePage(
-          state: state,
-          child: const ServicesPage(),
         ),
       ),
       GoRoute(
