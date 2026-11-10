@@ -63,7 +63,7 @@ class QuickActionGrid extends StatelessWidget {
       route: AppRoutes.connections,
     ),
     _QuickAction(
-      label: 'Loyalty',
+      label: 'Services',
       icon: Icons.stars_rounded,
       color: const Color(0xFFD97706),
       bgColor: const Color(0xFFFEF3C7),
