@@ -31,8 +31,16 @@ class _ManageConnectionsPageState extends State<ManageConnectionsPage> {
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_rounded),
-          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back_ios_rounded),
+          onPressed: () {
+            if (GoRouter.maybeOf(context)?.canPop() ?? false) {
+              context.pop();
+            } else if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              context.go(AppRoutes.home);
+            }
+          },
         ),
         title: Text('Manage Connections', style: AppTextStyles.titleMedium),
         backgroundColor: Colors.white,

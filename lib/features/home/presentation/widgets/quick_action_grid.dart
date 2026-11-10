@@ -64,7 +64,7 @@ class QuickActionGrid extends StatelessWidget {
     ),
     _QuickAction(
       label: 'Services',
-      icon: Icons.stars_rounded,
+      icon: Icons.miscellaneous_services_rounded,
       color: const Color(0xFFD97706),
       bgColor: const Color(0xFFFEF3C7),
       route: AppRoutes.services,
@@ -102,7 +102,22 @@ class QuickActionGrid extends StatelessWidget {
         return _QuickActionTile(
           action: action,
           animationDelay: Duration(milliseconds: index * 60),
-          onTap: () => context.push(action.route),
+          onTap: () {
+            const shellRoutes = [
+              AppRoutes.home,
+              AppRoutes.bill,
+              AppRoutes.usage,
+              AppRoutes.packages,
+              AppRoutes.more,
+              AppRoutes.services,
+              AppRoutes.connections,
+            ];
+            if (shellRoutes.contains(action.route)) {
+              context.go(action.route);
+            } else {
+              context.push(action.route);
+            }
+          },
         );
       },
     );

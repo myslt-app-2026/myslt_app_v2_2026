@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/router/app_router.dart';
 
 class ServicesPage extends StatelessWidget {
   const ServicesPage({super.key});
@@ -42,7 +44,15 @@ class ServicesPage extends StatelessWidget {
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.of(context).maybePop(),
+                      onPressed: () {
+                        if (GoRouter.maybeOf(context)?.canPop() ?? false) {
+                          context.pop();
+                        } else if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        } else {
+                          context.go(AppRoutes.home);
+                        }
+                      },
                     ),
                     const SizedBox(height: 16),
                     const Text(
