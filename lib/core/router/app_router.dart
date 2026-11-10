@@ -41,6 +41,7 @@ import '../widgets/main_shell.dart';
 import '../../features/home/data/models/promotion_model.dart';
 import '../../features/new_connection/presentation/screens/selfie_verification_screen.dart';
 import '../../features/new_connection/presentation/screens/check_availability_screen.dart';
+import '../../features/services/presentation/pages/services_page.dart';
 
 /// All named routes in the mySLT application.
 abstract final class AppRoutes {
@@ -70,6 +71,7 @@ abstract final class AppRoutes {
   static const String newConnectionNic = '/new-connection/nic';
   static const String newConnectionSelfie = '/new-connection/selfie';
   static const String newConnectionAvailability = '/new-connection/availability';
+  static const String services = '/services';
   static const String settings = '/settings';
   static const String language = '/settings/language';
 
@@ -376,6 +378,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _slidePage(
           state: state,
           child: const LocationServicesPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.services,
+        pageBuilder: (context, state) => _slidePage(
+          state: state,
+          child: const ServicesPage(),
         ),
       ),
       GoRoute(

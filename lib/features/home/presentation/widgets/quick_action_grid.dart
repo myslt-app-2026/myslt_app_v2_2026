@@ -67,7 +67,7 @@ class QuickActionGrid extends StatelessWidget {
       icon: Icons.stars_rounded,
       color: const Color(0xFFD97706),
       bgColor: const Color(0xFFFEF3C7),
-      route: AppRoutes.more,
+      route: AppRoutes.services,
     ),
     _QuickAction(
       label: 'Report',
