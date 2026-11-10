@@ -127,12 +127,6 @@ class ProfilePage extends ConsumerWidget {
                         onTap: () => showChangePasswordDialog(context, ref),
                       ),
                       _ActionTile(
-                        icon: Icons.device_hub_rounded,
-                        label: 'Manage Connections',
-                        color: AppColors.teal,
-                        onTap: () => context.push(AppRoutes.connections),
-                      ),
-                      _ActionTile(
                         icon: Icons.settings_outlined,
                         label: 'Settings',
                         color: AppColors.textSecondary,

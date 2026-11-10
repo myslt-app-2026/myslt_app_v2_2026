@@ -110,7 +110,14 @@ class _MoreTileState extends State<_MoreTile> with SingleTickerProviderStateMixi
       onTapDown: (_) => _bounceCtrl.reverse(),
       onTapUp: (_) async {
         await _bounceCtrl.forward();
-        if (context.mounted) context.push(widget.item.route);
+        if (context.mounted) {
+          if (widget.item.route == AppRoutes.connections ||
+              widget.item.route == AppRoutes.services) {
+            context.go(widget.item.route);
+          } else {
+            context.push(widget.item.route);
+          }
+        }
       },
       onTapCancel: () => _bounceCtrl.forward(),
       child: ScaleTransition(
