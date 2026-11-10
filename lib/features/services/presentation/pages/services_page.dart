@@ -98,9 +98,19 @@ class ServicesPage extends StatelessWidget {
                     return InkWell(
                       borderRadius: BorderRadius.circular(16),
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('${service.$1} selected')),
-                        );
+                        if (service.$1 == 'Reconnection') {
+                          if (GoRouter.maybeOf(context) != null) {
+                            context.go(AppRoutes.reconnection);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('${service.$1} selected')),
+                            );
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('${service.$1} selected')),
+                          );
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.all(16),

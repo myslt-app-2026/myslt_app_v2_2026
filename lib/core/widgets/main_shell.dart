@@ -62,7 +62,7 @@ class _SltBottomNav extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final location = GoRouterState.of(context).uri.path;
     final activeRoute = location == AppRoutes.connections ||
-            location == AppRoutes.services
+            location.startsWith('/services')
         ? AppRoutes.more
         : location;
 
