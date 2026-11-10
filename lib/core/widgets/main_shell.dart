@@ -16,18 +16,13 @@ class MainShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: child,
-      bottomNavigationBar: _SltBottomNav(),
+      bottomNavigationBar: const _SltBottomNav(),
     );
   }
 }
 
-class _SltBottomNav extends ConsumerStatefulWidget {
-  @override
-  ConsumerState<_SltBottomNav> createState() => _SltBottomNavState();
-}
-
-class _SltBottomNavState extends ConsumerState<_SltBottomNav> {
-  int _currentIndex = 0;
+class _SltBottomNav extends StatelessWidget {
+  const _SltBottomNav();
 
   static const _tabs = [
     _NavTab(
@@ -65,6 +60,11 @@ class _SltBottomNavState extends ConsumerState<_SltBottomNav> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final location = GoRouterState.of(context).uri.path;
+    final activeRoute = location == AppRoutes.connections ||
+            location == AppRoutes.services
+        ? AppRoutes.more
+        : location;
 
     return Container(
       decoration: BoxDecoration(
@@ -88,15 +88,12 @@ class _SltBottomNavState extends ConsumerState<_SltBottomNav> {
         child: SizedBox(
           height: 64,
           child: Row(
-            children: _tabs.asMap().entries.map((entry) {
-              final index = entry.key;
-              final tab = entry.value;
-              final isActive = _currentIndex == index;
+            children: _tabs.map((tab) {
+              final isActive = activeRoute == tab.route;
 
               return Expanded(
                 child: GestureDetector(
                   onTap: () {
-                    setState(() => _currentIndex = index);
                     context.go(tab.route);
                   },
                   behavior: HitTestBehavior.opaque,
