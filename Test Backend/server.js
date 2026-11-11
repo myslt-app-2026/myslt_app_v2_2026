@@ -3,7 +3,7 @@ const dns = require("dns");
 const mongoose = require("mongoose");
 const app = require("./src/app");
 
-// Fix Windows Node.js SRV lookup issues for MongoDB Atlas
+// Fix Windows Node.js SRV & Shard DNS lookup issues for MongoDB Atlas
 try {
   dns.setDefaultResultOrder("ipv4first");
   dns.setServers(["8.8.8.8", "1.1.1.1"]);
@@ -12,13 +12,38 @@ try {
 const MONGO_URI = process.env.MONGO_URI;
 let PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-mongoose
-  .connect(MONGO_URI)
-  .then(() => {
-    console.log("✅ MongoDB connected");
-    startServer(PORT);
-  })
-  .catch((err) => console.error("❌ DB connection error:", err));
+// Custom DNS resolver that queries public DNS (8.8.8.8 / 1.1.1.1) to resolve Atlas shard domains
+const customLookup = (hostname, options, callback) => {
+  if (typeof options === "function") {
+    callback = options;
+    options = {};
+  }
+  dns.resolve4(hostname, (err, addresses) => {
+    if (err || !addresses || addresses.length === 0) {
+      return dns.lookup(hostname, options, callback);
+    }
+    callback(null, addresses[0], 4);
+  });
+};
+
+// Start Express server immediately so APIs remain accessible
+startServer(PORT);
+
+// Connect to MongoDB in background without blocking server startup
+if (MONGO_URI) {
+  mongoose
+    .connect(MONGO_URI, {
+      serverSelectionTimeoutMS: 5000,
+      lookup: customLookup,
+    })
+    .then(() => {
+      console.log("✅ MongoDB connected successfully");
+    })
+    .catch((err) => {
+      console.warn("⚠️ MongoDB connection error:", err.message);
+      console.warn("💡 If your IP changed, whitelist it in MongoDB Atlas (Network Access -> Allow Access From Anywhere: 0.0.0.0/0)");
+    });
+}
 
 function startServer(port) {
   const server = app.listen(port);
