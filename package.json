@@ -1,0 +1,8 @@
+{
+  "name": "myslt-workspace",
+  "private": true,
+  "scripts": {
+    "start": "npm --prefix \"Test Backend\" start",
+    "backend": "npm --prefix \"Test Backend\" start"
+  }
+}
