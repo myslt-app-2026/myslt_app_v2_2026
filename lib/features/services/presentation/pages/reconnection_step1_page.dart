@@ -9,6 +9,7 @@ import '../../../../features/bill/data/models/bill_model.dart';
 import '../../../../features/bill/providers/bill_provider.dart';
 import '../../../../features/home/providers/home_provider.dart';
 import '../../../../features/profile/providers/profile_provider.dart';
+import '../widgets/request_widgets.dart';
 import 'reconnection_step2_page.dart';
 import 'reconnection_step3_page.dart';
 
@@ -260,99 +261,30 @@ class _ReconnectionStep1PageState extends ConsumerState<ReconnectionStep1Page> {
         ? (billAsync.valueOrNull?.amount ?? 0.0)
         : 0.0;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC),
-      body: Column(
-        children: [
-          // ── Curved Blue Header ──
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [sltNavy, sltBlue],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
-            ),
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
-                child: Row(
-                  children: [
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
-                      onPressed: _handleBack,
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Reconnection',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _subtitleForStep,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.9),
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.sync_rounded, color: Colors.white, size: 22),
-                        onPressed: () {
-                          ref.invalidate(profileProvider);
-                          ref.invalidate(homeProvider);
-                          ref.invalidate(billProvider);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+    final VoidCallback onContinue;
+    final String buttonLabel;
+    if (_currentStep == 1) {
+      onContinue = _goToStep2;
+      buttonLabel = 'Next: Details & Documents';
+    } else if (_currentStep == 2) {
+      onContinue = _goToStep3;
+      buttonLabel = 'Next Step';
+    } else {
+      onContinue = _submitReconnection;
+      buttonLabel = 'Continue';
+    }
 
-          // ── Scrollable Body per Step ──
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-              children: [
-                StepProgress(current: _currentStep),
-                const SizedBox(height: 20),
-
-                if (_currentStep == 1) ...[
-                  _buildStep1Content(pendingBalance),
-                ] else if (_currentStep == 2) ...[
-                  _buildStep2Content(pendingBalance),
-                ] else ...[
-                  _buildStep3Content(pendingBalance),
-                ],
-              ],
-            ),
-          ),
-
-          // ── Fixed Bottom Actions Bar ──
-          _buildBottomBar(),
-        ],
-      ),
+    return RequestScaffold(
+      title: 'Reconnection',
+      step: _currentStep - 1, // RequestScaffold uses 0-based steps
+      onBack: _handleBack,
+      onContinue: onContinue,
+      buttonLabel: buttonLabel,
+      child: switch (_currentStep) {
+        1 => _buildStep1Content(pendingBalance),
+        2 => _buildStep2Content(pendingBalance),
+        _ => _buildStep3Content(pendingBalance),
+      },
     );
   }
 
@@ -1020,90 +952,6 @@ class _ReconnectionStep1PageState extends ConsumerState<ReconnectionStep1Page> {
     );
   }
 
-  Widget _buildBottomBar() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -3),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: _currentStep == 1
-            ? SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: sltNavy,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: selectedServices.isEmpty ? null : _goToStep2,
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Next: Details & Documents', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward_rounded, size: 18),
-                    ],
-                  ),
-                ),
-              )
-            : Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: SizedBox(
-                      height: 50,
-                      child: OutlinedButton(
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: sltNavy,
-                          side: const BorderSide(color: sltNavy),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: _handleBack,
-                        child: const Text('Back', style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: SizedBox(
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: sltNavy,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: _currentStep == 2 ? _goToStep3 : _submitReconnection,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              _currentStep == 2 ? 'Next Step' : 'Continue',
-                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward_rounded, size: 18),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
 }
 
 class StepProgress extends StatelessWidget {
