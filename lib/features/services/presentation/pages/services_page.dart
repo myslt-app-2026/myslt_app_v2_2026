@@ -16,6 +16,14 @@ class ServicesPage extends StatelessWidget {
     ('General Request', 'Any other request or enquiry', Icons.description_outlined),
   ];
 
+  /// Requests that open as their own full screen (opened with push so the
+  /// back button returns to this page).
+  static const Map<String, String> _pushRoutes = {
+    'Relocation': AppRoutes.relocation,
+    'Service Vacation': AppRoutes.serviceVacation,
+    'Transfer Ownership': AppRoutes.transferOwnership,
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,6 +106,7 @@ class ServicesPage extends StatelessWidget {
                     return InkWell(
                       borderRadius: BorderRadius.circular(16),
                       onTap: () {
+                        final pushRoute = _pushRoutes[service.$1];
                         if (service.$1 == 'Reconnection') {
                           if (GoRouter.maybeOf(context) != null) {
                             context.go(AppRoutes.reconnection);
@@ -106,6 +115,9 @@ class ServicesPage extends StatelessWidget {
                               SnackBar(content: Text('${service.$1} selected')),
                             );
                           }
+                        } else if (pushRoute != null &&
+                            GoRouter.maybeOf(context) != null) {
+                          context.push(pushRoute);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('${service.$1} selected')),

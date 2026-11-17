@@ -43,6 +43,9 @@ import '../../features/new_connection/presentation/screens/selfie_verification_s
 import '../../features/new_connection/presentation/screens/check_availability_screen.dart';
 import '../../features/services/presentation/pages/services_page.dart';
 import '../../features/services/presentation/pages/reconnection_step1_page.dart';
+import '../../features/services/presentation/pages/relocation_page.dart';
+import '../../features/services/presentation/pages/service_vacation_page.dart';
+import '../../features/services/presentation/pages/transfer_ownership_page.dart';
 
 /// All named routes in the mySLT application.
 abstract final class AppRoutes {
@@ -74,6 +77,9 @@ abstract final class AppRoutes {
   static const String newConnectionAvailability = '/new-connection/availability';
   static const String services = '/services';
   static const String reconnection = '/services/reconnection';
+  static const String relocation = '/services/relocation';
+  static const String serviceVacation = '/services/vacation';
+  static const String transferOwnership = '/services/transfer-ownership';
   static const String settings = '/settings';
   static const String language = '/settings/language';
 
@@ -308,6 +314,30 @@ final routerProvider = Provider<GoRouter>((ref) {
           child: const CheckAvailabilityScreen(),
         ),
       ),
+
+      // ─── Account service requests (outside shell, opened with push) ────
+      GoRoute(
+        path: AppRoutes.relocation,
+        pageBuilder: (context, state) => _slidePage(
+          state: state,
+          child: const RelocationPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.serviceVacation,
+        pageBuilder: (context, state) => _slidePage(
+          state: state,
+          child: const ServiceVacationPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.transferOwnership,
+        pageBuilder: (context, state) => _slidePage(
+          state: state,
+          child: const TransferOwnershipPage(),
+        ),
+      ),
+
       GoRoute(
         path: AppRoutes.settings,
         pageBuilder: (context, state) => _slidePage(
